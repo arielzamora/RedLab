@@ -1,31 +1,34 @@
-<div class="card post-card">
+<div class="card post-card" *ngIf="post">
   <!-- Cabecera -->
   <div class="post-header">
-    <div class="avatar-placeholder"></div>
-    <div class="post-meta">
-      <span class="user-name">Usuario Prueba</span>
-      <span class="post-date">Hace 2 horas</span>
+    <div class="author-info-wrapper">
+      <img *ngIf="authorAvatar" [src]="authorAvatar" class="avatar-image" alt="Avatar" />
+      <div *ngIf="!authorAvatar" class="avatar-placeholder"></div>
+      
+      <div class="post-meta">
+        <span class="user-name">{{ authorName }}</span>
+        <span class="user-role-badge" [class.admin-badge]="post.autor?.perfil === 'administrador'">
+          {{ post.autor?.perfil === 'administrador' ? 'Admin' : 'Usuario' }}
+        </span>
+        <span class="post-date">{{ post.createdAt | date:'short' }}</span>
+      </div>
     </div>
+
+    <!-- Acciones de cabecera: Botón de Borrar -->
+    <button *ngIf="canDelete" class="btn-delete" (click)="onDelete()" title="Eliminar publicación">
+      &times;
+    </button>
   </div>
 
   <!-- Cuerpo -->
   <div class="post-body">
-    <h4 class="post-title">¡Mi primera publicación!</h4>
-    <p class="post-text">
-      Este es el cuerpo de la publicación diseñado según los lineamientos de Facebook. 
-      Estructura limpia, fuente clara y buen contraste.
-    </p>
-    <!-- Contenedor opcional para imagen (comentado) -->
-    <!-- <img src="..." class="post-image" alt="Publicación imagen"> -->
+    <p class="post-text">{{ post.texto }}</p>
   </div>
 
   <!-- Interacción -->
   <div class="post-actions">
-    <button class="btn-text" (click)="toggleLike()" [class.active]="liked">
-      <i class="icon-like"></i> Me gusta
-    </button>
-    <button class="btn-text">
-      <i class="icon-comment"></i> Comentar
+    <button class="btn-text" (click)="toggleLike()" [class.active]="isLiked">
+      <i class="icon-like"></i> Me gusta ({{ post.likes?.length || 0 }})
     </button>
   </div>
 </div>

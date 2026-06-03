@@ -26,7 +26,7 @@ export class User {
   @Prop()
   descripcion: string;
 
-  @Prop({ default: 'USER' })
+  @Prop({ default: 'usuario' })
   perfil: string;
 
   @Prop()

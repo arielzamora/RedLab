@@ -29,6 +29,10 @@ export class Auth {
     return this.http.post(`${this.apiUrl}/registro`, userData);
   }
 
+  updateProfile(userId: string, data: any): Observable<any> {
+    return this.http.patch(`${environment.apiUrl}/users/${userId}`, data);
+  }
+
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('currentUser');

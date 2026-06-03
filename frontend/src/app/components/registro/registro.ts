@@ -16,8 +16,11 @@ export class Registro {
   correo = '';
   username = '';
   password = '';
+  repetirPassword = '';
   fechaNacimiento = '';
   descripcion = '';
+  perfil = 'usuario';
+  selectedFile: File | null = null;
 
   // Custom modal properties
   showModal = false;
@@ -38,25 +41,50 @@ export class Registro {
     }
   }
 
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+    }
+  }
+
   onSubmit() {
-    if (!this.nombre || !this.apellido || !this.correo || !this.username || !this.password) {
+    if (!this.nombre || !this.apellido || !this.correo || !this.username || !this.password || !this.repetirPassword) {
       this.openModal('Campos requeridos', 'Por favor, completa todos los campos obligatorios.');
+      return;
+    }
+
+    if (this.password !== this.repetirPassword) {
+      this.openModal('Validación de Contraseña', 'Las contraseñas no coinciden.');
+      return;
+    }
+
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(this.password)) {
+      this.openModal('Validación de Contraseña', 'La contraseña debe tener al menos 8 caracteres, una letra mayúscula y un número.');
       return;
     }
 
     this.isLoading = true;
 
-    const payload = {
-      nombre: this.nombre,
-      apellido: this.apellido,
-      correo: this.correo,
-      username: this.username,
-      password: this.password,
-      fechaNacimiento: this.fechaNacimiento || undefined,
-      descripcion: this.descripcion || undefined,
-    };
+    const formData = new FormData();
+    formData.append('nombre', this.nombre);
+    formData.append('apellido', this.apellido);
+    formData.append('correo', this.correo);
+    formData.append('username', this.username);
+    formData.append('password', this.password);
+    formData.append('perfil', this.perfil);
+    if (this.fechaNacimiento) {
+      formData.append('fechaNacimiento', this.fechaNacimiento);
+    }
+    if (this.descripcion) {
+      formData.append('descripcion', this.descripcion);
+    }
+    if (this.selectedFile) {
+      formData.append('imagenPerfil', this.selectedFile, this.selectedFile.name);
+    }
 
-    this.auth.registro(payload).subscribe({
+    this.auth.registro(formData).subscribe({
       next: () => {
         // Auto-login the user immediately after successful registration
         this.auth.login({ username: this.username, password: this.password }).subscribe({
@@ -66,7 +94,6 @@ export class Registro {
           },
           error: (loginErr) => {
             this.isLoading = false;
-            // Fallback: if auto-login fails, redirect to login screen so they can try manually
             this.router.navigate(['/login']);
           }
         });

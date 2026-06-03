@@ -10,8 +10,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async registro(registroDto: any) {
-    const { nombre, apellido, correo, username, password, fechaNacimiento, descripcion } = registroDto;
+  async registro(registroDto: any, file?: any, req?: any) {
+    const { nombre, apellido, correo, username, password, fechaNacimiento, descripcion, perfil } = registroDto;
 
     // Check duplicate email
     const existingEmail = await this.usersService.findByEmail(correo);
@@ -29,6 +29,13 @@ export class AuthService {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Generate profile picture URL
+    let imgUrl = '';
+    if (file && req) {
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      imgUrl = `${baseUrl}/uploads/${file.filename}`;
+    }
+
     // Create user
     const createdUser = await this.usersService.create({
       nombre,
@@ -38,6 +45,8 @@ export class AuthService {
       password: hashedPassword,
       fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento) : undefined,
       descripcion,
+      perfil: perfil || 'usuario',
+      imgUrl,
     });
 
     // Return user without password
@@ -62,7 +71,7 @@ export class AuthService {
     }
 
     // Generate JWT
-    const payload = { sub: user._id, username: user.username, email: user.correo };
+    const payload = { sub: user._id, username: user.username, email: user.correo, role: user.perfil };
     const accessToken = this.jwtService.sign(payload);
 
     return {
@@ -74,6 +83,9 @@ export class AuthService {
         correo: user.correo,
         username: user.username,
         imgUrl: user.imgUrl,
+        perfil: user.perfil,
+        descripcion: user.descripcion,
+        fechaNacimiento: user.fechaNacimiento,
       },
     };
   }

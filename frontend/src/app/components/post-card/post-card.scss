@@ -3,6 +3,11 @@
   flex-direction: column;
 }
 
+.author-info-wrapper {
+  display: flex;
+  align-items: center;
+}
+
 .avatar-placeholder {
   width: 40px;
   height: 40px;
@@ -11,9 +16,19 @@
   margin-right: 12px;
 }
 
+.avatar-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+  object-fit: cover;
+  border: 1px solid var(--fb-border);
+}
+
 .post-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 12px;
 }
 
@@ -29,6 +44,40 @@
   .post-date {
     color: var(--fb-text-secondary);
     font-size: 0.8rem;
+  }
+
+  .user-role-badge {
+    align-self: flex-start;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 12px;
+    background-color: var(--fb-bg-secondary);
+    color: var(--fb-text-secondary);
+    font-weight: 600;
+    margin-top: 2px;
+    text-transform: capitalize;
+    
+    &.admin-badge {
+      background-color: rgba(24, 119, 242, 0.1);
+      color: var(--fb-active);
+    }
+  }
+}
+
+.btn-delete {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--fb-text-secondary);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 50%;
+  line-height: 1;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #e41e3f;
   }
 }
 

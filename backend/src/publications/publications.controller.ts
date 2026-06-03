@@ -19,8 +19,8 @@ export class PublicationsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.publicationsService.remove(id);
+  remove(@Req() req: any, @Param('id') id: string) {
+    return this.publicationsService.removeWithRole(id, req.user.sub, req.user.role);
   }
 
   @Post(':id/like')

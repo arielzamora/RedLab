@@ -35,12 +35,17 @@ export class Login {
       return;
     }
 
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(this.password)) {
+      this.openModal('Validación de Contraseña', 'La contraseña debe tener al menos 8 caracteres, una letra mayúscula y un número.');
+      return;
+    }
+
     this.auth.login({ username: this.username, password: this.password }).subscribe({
       next: () => {
         this.router.navigate(['/publicaciones']);
       },
       error: (err) => {
-        // Backend wrap responses in TransformInterceptor, standard Nest errors will have { message, error, statusCode }
         const errMsg = err.error?.data?.message || err.error?.message || 'Usuario o contraseña incorrectos. Por favor, intenta de nuevo.';
         this.openModal('Error de Inicio de Sesión', errMsg);
       }

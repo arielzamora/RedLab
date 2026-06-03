@@ -1,1 +1,149 @@
-<p>mi-perfil works!</p>
+<div class="profile-wrapper" *ngIf="currentUser">
+  <div class="profile-container">
+    <!-- Botón Volver -->
+    <div class="header-actions">
+      <button class="btn-text-nav" (click)="goToFeed()">&larr; Volver al Feed</button>
+    </div>
+
+    <div class="profile-content">
+      <!-- Columna Izquierda: Tarjeta de Presentación -->
+      <div class="profile-sidebar-card card">
+        <div class="avatar-container">
+          <img *ngIf="currentUser.imgUrl" [src]="currentUser.imgUrl" class="avatar-large" alt="Avatar de Perfil" />
+          <div *ngIf="!currentUser.imgUrl" class="avatar-placeholder-large"></div>
+        </div>
+
+        <div class="user-details">
+          <h2>{{ currentUser.nombre }} {{ currentUser.apellido }}</h2>
+          <p class="username">&#64;{{ currentUser.username }}</p>
+          <p class="email">{{ currentUser.correo }}</p>
+          
+          <div class="divider"></div>
+
+          <div class="role-badge" [class.admin-badge]="currentUser.perfil === 'administrador'">
+            {{ currentUser.perfil === 'administrador' ? 'Administrador' : 'Usuario Estándar' }}
+          </div>
+          
+          <p class="user-bio" *ngIf="currentUser.descripcion">
+            <em>"{{ currentUser.descripcion }}"</em>
+          </p>
+        </div>
+      </div>
+
+      <!-- Columna Derecha: Formulario de Edición -->
+      <div class="profile-form-card card">
+        <h3>Editar Perfil</h3>
+        <p class="section-desc">Mantén tu información personal actualizada para la comunidad.</p>
+        
+        <div class="divider"></div>
+
+        <form (ngSubmit)="onSubmit()" class="profile-form">
+          <!-- Nombre & Apellido -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nombre" class="field-label">Nombre</label>
+              <input 
+                type="text" 
+                id="nombre"
+                name="nombre" 
+                class="form-input" 
+                [(ngModel)]="nombre" 
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="apellido" class="field-label">Apellido</label>
+              <input 
+                type="text" 
+                id="apellido"
+                name="apellido" 
+                class="form-input" 
+                [(ngModel)]="apellido" 
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Descripción Corta -->
+          <div class="form-group">
+            <label for="descripcion" class="field-label">Descripción corta (bio)</label>
+            <textarea 
+              id="descripcion"
+              name="descripcion" 
+              class="form-input textarea-input" 
+              [(ngModel)]="descripcion"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <!-- Fecha de Nacimiento -->
+          <div class="form-group">
+            <label for="fechaNacimiento" class="field-label">Fecha de nacimiento</label>
+            <input 
+              type="date" 
+              id="fechaNacimiento"
+              name="fechaNacimiento" 
+              class="form-input" 
+              [(ngModel)]="fechaNacimiento" 
+            />
+          </div>
+
+          <!-- Perfil / Rol -->
+          <div class="form-group">
+            <label for="perfil" class="field-label">Perfil / Rol de usuario</label>
+            <select 
+              id="perfil"
+              name="perfil" 
+              class="form-input select-input" 
+              [(ngModel)]="perfil"
+            >
+              <option value="usuario">Usuario estándar</option>
+              <option value="administrador">Administrador</option>
+            </select>
+          </div>
+
+          <!-- Foto de Perfil File Input -->
+          <div class="form-group">
+            <label for="imagenPerfil" class="field-label">Actualizar foto de perfil</label>
+            <input 
+              type="file" 
+              id="imagenPerfil"
+              name="imagenPerfil" 
+              class="form-input file-input" 
+              (change)="onFileSelected($event)"
+              accept="image/*"
+            />
+          </div>
+
+          <!-- Botones de Acción -->
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" (click)="goToFeed()">Cancelar</button>
+            <button type="submit" class="btn-primary" [disabled]="isLoading">
+              @if (isLoading) {
+                <span class="spinner"></span> Guardando...
+              } @else {
+                Guardar Cambios
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Modal for Alerts -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span>{{ modalTitle }}</span>
+      <button type="button" class="btn-close" (click)="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>{{ modalMessage }}</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-primary" (click)="closeModal()">Entendido</button>
+    </div>
+  </div>
+</div>
