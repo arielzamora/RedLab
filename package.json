@@ -1,0 +1,12 @@
+{
+  "name": "red-social-monorepo",
+  "version": "1.0.0",
+  "description": "TP Red Social - Monorepo",
+  "scripts": {
+    "start:frontend": "npm run start --prefix frontend",
+    "start:backend": "npm run start:dev --prefix backend",
+    "build:frontend": "npm run build --prefix frontend",
+    "build:backend": "npm run build --prefix backend",
+    "install:all": "npm install --prefix frontend && npm install --prefix backend"
+  }
+}

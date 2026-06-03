@@ -1,0 +1,134 @@
+<div class="register-wrapper">
+  <div class="register-container">
+    <div class="brand-header">
+      <h1 class="brand-logo" (click)="goToLogin()">utnLab</h1>
+    </div>
+
+    <div class="card register-card">
+      <div class="register-header">
+        <h2>Crear una cuenta</h2>
+        <p>Es rápido y fácil.</p>
+        <div class="divider"></div>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="register-form">
+        <!-- Nombre & Apellido -->
+        <div class="form-row">
+          <div class="form-group">
+            <input 
+              type="text" 
+              name="nombre" 
+              placeholder="Nombre" 
+              class="form-input" 
+              [(ngModel)]="nombre" 
+              required
+            />
+          </div>
+          <div class="form-group">
+            <input 
+              type="text" 
+              name="apellido" 
+              placeholder="Apellido" 
+              class="form-input" 
+              [(ngModel)]="apellido" 
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Correo Electrónico -->
+        <div class="form-group">
+          <input 
+            type="email" 
+            name="correo" 
+            placeholder="Correo electrónico" 
+            class="form-input" 
+            [(ngModel)]="correo" 
+            required
+          />
+        </div>
+
+        <!-- Nombre de Usuario -->
+        <div class="form-group">
+          <input 
+            type="text" 
+            name="username" 
+            placeholder="Nombre de usuario (ej. jdoe)" 
+            class="form-input" 
+            [(ngModel)]="username" 
+            required
+          />
+        </div>
+
+        <!-- Contraseña -->
+        <div class="form-group">
+          <input 
+            type="password" 
+            name="password" 
+            placeholder="Contraseña nueva" 
+            class="form-input" 
+            [(ngModel)]="password" 
+            required
+          />
+        </div>
+
+        <!-- Fecha de Nacimiento -->
+        <div class="form-group date-group">
+          <label for="fechaNacimiento" class="field-label">Fecha de nacimiento</label>
+          <input 
+            type="date" 
+            id="fechaNacimiento"
+            name="fechaNacimiento" 
+            class="form-input" 
+            [(ngModel)]="fechaNacimiento" 
+          />
+        </div>
+
+        <!-- Descripción -->
+        <div class="form-group">
+          <textarea 
+            name="descripcion" 
+            placeholder="Cuéntanos un poco sobre ti (opcional)..." 
+            class="form-input textarea-input" 
+            [(ngModel)]="descripcion"
+            rows="3"
+          ></textarea>
+        </div>
+
+        <p class="terms-text">
+          Al hacer clic en "Registrarte", aceptas nuestras Condiciones, la Política de privacidad y la Política de cookies.
+        </p>
+
+        <button type="submit" class="btn-primary register-btn" [disabled]="isLoading">
+          @if (isLoading) {
+            <span class="spinner"></span> Registrando...
+          } @else {
+            Registrarte
+          }
+        </button>
+
+        <div class="login-link">
+          <a href="javascript:void(0)" (click)="goToLogin()">¿Ya tienes una cuenta?</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Modal for Alerts -->
+@if (showModal) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <span>{{ modalTitle }}</span>
+        <button type="button" class="btn-close" (click)="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>{{ modalMessage }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-primary" (click)="closeModal()">Entendido</button>
+      </div>
+    </div>
+  </div>
+}

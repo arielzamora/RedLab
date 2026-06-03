@@ -1,0 +1,66 @@
+.post-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--fb-border);
+  margin-right: 12px;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.post-meta {
+  display: flex;
+  flex-direction: column;
+  
+  .user-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+  
+  .post-date {
+    color: var(--fb-text-secondary);
+    font-size: 0.8rem;
+  }
+}
+
+.post-body {
+  margin-bottom: 16px;
+  
+  .post-title {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+  }
+  
+  .post-text {
+    font-size: 0.95rem;
+    color: var(--fb-text-primary);
+  }
+  
+  .post-image {
+    width: 100%;
+    margin-top: 12px;
+    border-radius: var(--border-radius-card);
+    object-fit: cover;
+  }
+}
+
+.post-actions {
+  display: flex;
+  border-top: 1px solid var(--fb-divider);
+  padding-top: 4px;
+  
+  button {
+    flex: 1;
+    margin: 0 4px;
+    padding: 8px;
+  }
+}

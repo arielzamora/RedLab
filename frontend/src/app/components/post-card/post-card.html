@@ -1,0 +1,31 @@
+<div class="card post-card">
+  <!-- Cabecera -->
+  <div class="post-header">
+    <div class="avatar-placeholder"></div>
+    <div class="post-meta">
+      <span class="user-name">Usuario Prueba</span>
+      <span class="post-date">Hace 2 horas</span>
+    </div>
+  </div>
+
+  <!-- Cuerpo -->
+  <div class="post-body">
+    <h4 class="post-title">¡Mi primera publicación!</h4>
+    <p class="post-text">
+      Este es el cuerpo de la publicación diseñado según los lineamientos de Facebook. 
+      Estructura limpia, fuente clara y buen contraste.
+    </p>
+    <!-- Contenedor opcional para imagen (comentado) -->
+    <!-- <img src="..." class="post-image" alt="Publicación imagen"> -->
+  </div>
+
+  <!-- Interacción -->
+  <div class="post-actions">
+    <button class="btn-text" (click)="toggleLike()" [class.active]="liked">
+      <i class="icon-like"></i> Me gusta
+    </button>
+    <button class="btn-text">
+      <i class="icon-comment"></i> Comentar
+    </button>
+  </div>
+</div>

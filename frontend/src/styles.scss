@@ -1,0 +1,115 @@
+/* Tarea 1 y 4: Variables Globales, Resets y Sistema de Modales */
+
+:root {
+  /* Facebook Inspired Colors */
+  --fb-blue: #1877F2;
+  --fb-blue-hover: #166FE5;
+  --fb-bg: #F0F2F5;
+  --fb-surface: #FFFFFF;
+  --fb-text-primary: #050505;
+  --fb-text-secondary: #65676B;
+  --fb-border: #CED0D4;
+  --fb-divider: #E4E6EB;
+  
+  /* Radios y Sombras */
+  --border-radius-card: 8px;
+  --border-radius-btn: 6px;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-modal: 0 12px 28px 0 rgba(0, 0, 0, 0.2), 0 2px 4px 0 rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+  background-color: var(--fb-bg);
+  color: var(--fb-text-primary);
+  line-height: 1.5;
+}
+
+/* Utilidades Base */
+.card {
+  background-color: var(--fb-surface);
+  border-radius: var(--border-radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.btn-primary {
+  background-color: var(--fb-blue);
+  color: #FFF;
+  border: none;
+  border-radius: var(--border-radius-btn);
+  padding: 8px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: var(--fb-blue-hover);
+}
+
+.btn-text {
+  background-color: transparent;
+  color: var(--fb-text-secondary);
+  border: none;
+  border-radius: var(--border-radius-btn);
+  padding: 6px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-text:hover {
+  background-color: var(--fb-divider);
+}
+
+.btn-text.active {
+  color: var(--fb-blue);
+}
+
+/* Tarea 4: Sistema Global de Modales (No más alerts) */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: var(--fb-surface);
+  border-radius: var(--border-radius-card);
+  box-shadow: var(--shadow-modal);
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--fb-divider);
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
