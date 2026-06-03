@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://redlab-backend.azurewebsites.net'
+  apiUrl: 'https://redlab-backend-ambggjdkb3hdhdh9.canadacentral-01.azurewebsites.net'
 };
