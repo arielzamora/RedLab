@@ -1,71 +1,258 @@
-<div class="layout-container" *ngIf="currentUser">
-  <!-- Columna Izquierda: Perfil -->
-  <aside class="sidebar-left">
-    <div class="profile-shortcut" (click)="goToProfile()">
-      <img *ngIf="currentUser.imgUrl" [src]="currentUser.imgUrl" class="avatar-image-sidebar" alt="Avatar" />
-      <div *ngIf="!currentUser.imgUrl" class="avatar-placeholder-sidebar"></div>
-      <div class="profile-info-sidebar">
-        <span class="user-name">{{ currentUser.nombre }} {{ currentUser.apellido }}</span>
-        <span class="user-username">&#64;{{ currentUser.username }}</span>
-        <span class="user-role-badge-sidebar" [class.admin-badge]="currentUser.perfil === 'administrador'">
-          {{ currentUser.perfil === 'administrador' ? 'Administrador' : 'Usuario' }}
-        </span>
+<div *ngIf="currentUser">
+  <!-- Barra de Navegación Superior (Estilo Facebook) -->
+  <header class="fb-header" style="position: sticky; top: 0; z-index: 100; height: 56px; background-color: var(--fb-surface); border-bottom: 1px solid var(--fb-divider); box-shadow: 0 1px 2px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; padding: 0 16px;">
+    <!-- Izquierda: Logo & Buscador -->
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div 
+        (click)="changeSort('fecha')" 
+        style="background-color: var(--fb-blue); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.6rem; font-family: sans-serif; cursor: pointer; user-select: none;"
+        title="Ir al Feed"
+      >
+        u
       </div>
-    </div>
-    
-    <div class="sidebar-actions">
-      <button class="btn-sidebar" (click)="goToProfile()">Ver mi Perfil</button>
-      <button class="btn-sidebar btn-danger" (click)="logout()">Cerrar sesión</button>
-    </div>
-  </aside>
-
-  <!-- Columna Central: Feed -->
-  <main class="feed-main">
-    <!-- Crear Post -->
-    <div class="card create-post">
-      <div class="create-post-header">
-        <img *ngIf="currentUser.imgUrl" [src]="currentUser.imgUrl" class="avatar-image-post" alt="Avatar" />
-        <div *ngIf="!currentUser.imgUrl" class="avatar-placeholder"></div>
-        <textarea 
-          placeholder="¿Qué estás pensando?" 
-          class="post-input-textarea" 
-          [(ngModel)]="nuevoTexto" 
-          (keydown.enter)="$event.preventDefault(); crearPost()"
-        ></textarea>
-      </div>
-      <div class="create-post-actions">
-        <button class="btn-primary" (click)="crearPost()" [disabled]="!nuevoTexto.trim()">Publicar</button>
+      <div style="position: relative; display: flex; align-items: center;">
+        <input 
+          type="text" 
+          placeholder="Buscar en utnLab..." 
+          style="background-color: var(--fb-bg); border: none; border-radius: 20px; padding: 8px 16px 8px 36px; font-size: 0.9rem; outline: none; width: 220px; color: var(--fb-text-primary);" 
+        />
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--fb-text-secondary)" style="position: absolute; left: 12px;">
+          <path d="M19.072 17.658L15.347 13.93C16.38 12.568 17 10.857 17 9c0-4.411-3.589-8-8-8S1 4.589 1 9s3.589 8 8 8c1.857 0 3.568-.62 4.93-1.653l3.728 3.725 1.414-1.414zM9 15c-3.309 0-6-2.691-6-6s2.691-6 6-6 6 2.691 6 6-2.691 6-6 6z"/>
+        </svg>
       </div>
     </div>
 
-    <!-- Lista de Publicaciones -->
-    <div class="posts-list">
-      <div *ngIf="posts.length === 0 && !isLoading" class="no-posts-card card">
-        <p>No hay publicaciones aún. ¡Sé el primero en compartir algo!</p>
+    <!-- Centro: Iconos de Navegación -->
+    <div style="display: flex; align-items: center; gap: 40px;">
+      <!-- Icono Home (Activo) -->
+      <div 
+        (click)="loadPosts(); changeSort('fecha')" 
+        style="display: flex; align-items: center; justify-content: center; width: 80px; height: 56px; border-bottom: 4px solid var(--fb-blue); cursor: pointer; color: var(--fb-blue);"
+        title="Inicio / Feed"
+      >
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
       </div>
 
-      <div *ngIf="isLoading" class="loading-posts">
-        <span class="spinner"></span> Cargando publicaciones...
+      <!-- Icono Mi Perfil -->
+      <div 
+        (click)="goToProfile()" 
+        style="display: flex; align-items: center; justify-content: center; width: 80px; height: 56px; border-bottom: 4px solid transparent; cursor: pointer; color: var(--fb-text-secondary);"
+        onmouseover="this.style.color='var(--fb-text-primary)'"
+        onmouseout="this.style.color='var(--fb-text-secondary)'"
+        title="Mi Perfil"
+      >
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Derecha: Perfil & Cerrar Sesión -->
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div 
+        (click)="goToProfile()" 
+        style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 8px; border-radius: 20px; transition: background-color 0.2s;" 
+        onmouseover="this.style.backgroundColor='var(--fb-divider)'" 
+        onmouseout="this.style.backgroundColor='transparent'"
+      >
+        <img *ngIf="currentUser.imgUrl" [src]="currentUser.imgUrl" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" alt="Avatar" />
+        <div *ngIf="!currentUser.imgUrl" style="width: 32px; height: 32px; border-radius: 50%; background-color: var(--fb-border);"></div>
+        <span style="font-weight: 600; font-size: 0.9rem; color: var(--fb-text-primary);">{{ currentUser.nombre }}</span>
       </div>
 
-      <app-post-card 
-        *ngFor="let post of posts" 
-        [post]="post"
-        [currentUserId]="currentUser.id"
-        [currentUserRole]="currentUser.perfil"
-        (likeToggled)="onLikeToggled($event)"
-        (deleteRequested)="onDeleteRequested($event)"
-      ></app-post-card>
+      <button 
+        (click)="logout()" 
+        style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background-color: var(--fb-divider); border: none; cursor: pointer; color: var(--fb-text-primary); transition: filter 0.2s;"
+        onmouseover="this.style.filter='brightness(0.95)'"
+        onmouseout="this.style.filter='none'"
+        title="Cerrar sesión"
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <path d="M13 3h-2v10h2V3zm4.78 2.22l-1.42 1.42C18.23 8.12 19 9.97 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.03.77-3.88 2.14-5.36L5.72 5.22C3.99 7.02 3 9.4 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.6-1.01-4.98-2.72-6.78z"/>
+        </svg>
+      </button>
     </div>
-  </main>
+  </header>
 
-  <!-- Columna Derecha: Panel Lateral -->
-  <aside class="sidebar-right">
-    <div class="card">
-      <h3>Acciones rápidas</h3>
-      <p class="text-muted">¡Bienvenido a utnLab, la red social universitaria!</p>
-      <div class="divider"></div>
-      <p class="stats-text"><strong>Total de publicaciones:</strong> {{ posts.length }}</p>
-    </div>
-  </aside>
+  <!-- Contenedor Principal con Grid de 3 Columnas -->
+  <div class="layout-container" style="margin-top: 10px;">
+    <!-- Columna Izquierda: Perfil -->
+    <aside class="sidebar-left">
+      <div class="profile-shortcut" (click)="goToProfile()">
+        <img *ngIf="currentUser.imgUrl" [src]="currentUser.imgUrl" class="avatar-image-sidebar" alt="Avatar" />
+        <div *ngIf="!currentUser.imgUrl" class="avatar-placeholder-sidebar"></div>
+        <div class="profile-info-sidebar">
+          <span class="user-name">{{ currentUser.nombre }} {{ currentUser.apellido }}</span>
+          <span class="user-username">&#64;{{ currentUser.username }}</span>
+          <span class="user-role-badge-sidebar" [class.admin-badge]="currentUser.perfil === 'administrador'">
+            {{ currentUser.perfil === 'administrador' ? 'Administrador' : 'Usuario' }}
+          </span>
+        </div>
+      </div>
+      
+      <div class="sidebar-actions">
+        <button class="btn-sidebar" (click)="goToProfile()">Ver mi Perfil</button>
+        <button class="btn-sidebar btn-danger" (click)="logout()">Cerrar sesión</button>
+      </div>
+    </aside>
+
+    <!-- Columna Central: Feed -->
+    <main class="feed-main">
+      <!-- Crear Post (Rediseñado Estilo Facebook) -->
+      <div class="card create-post" style="padding: 16px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+        <div class="create-post-header" style="display: flex; gap: 12px; align-items: flex-start;">
+          <img *ngIf="currentUser.imgUrl" [src]="currentUser.imgUrl" class="avatar-image-post" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" />
+          <div *ngIf="!currentUser.imgUrl" class="avatar-placeholder" style="width: 40px; height: 40px; border-radius: 50%; background-color: var(--fb-border);"></div>
+          
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+            <input 
+              type="text" 
+              placeholder="Título de la publicación..." 
+              [(ngModel)]="nuevoTitulo" 
+              style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--fb-border); outline: none; font-size: 0.95rem; font-weight: 600; color: var(--fb-text-primary); background-color: var(--fb-bg-secondary);" 
+              required 
+            />
+            <textarea 
+              placeholder="¿De qué trata tu publicación?" 
+              [(ngModel)]="nuevaDescripcion" 
+              style="width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--fb-border); outline: none; font-size: 0.9rem; resize: vertical; min-height: 80px; color: var(--fb-text-primary); background-color: var(--fb-bg-secondary);" 
+              required
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Previsualización de la Imagen Seleccionada -->
+        <div *ngIf="imagenSeleccionada" style="position: relative; margin-top: 8px; border-radius: 8px; overflow: hidden; border: 1px solid var(--fb-border); padding: 12px; display: flex; justify-content: space-between; align-items: center; background-color: var(--fb-bg);">
+          <span style="font-size: 0.85rem; color: var(--fb-text-secondary); font-weight: 500;">✓ Imagen seleccionada: <strong>{{ imagenSeleccionada.name }}</strong></span>
+          <button 
+            type="button" 
+            (click)="resetFileInput()" 
+            style="background-color: rgba(0,0,0,0.1); border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-weight: bold; font-size: 0.9rem; display: flex; justify-content: center; align-items: center;"
+            onmouseover="this.style.backgroundColor='rgba(0,0,0,0.2)'"
+            onmouseout="this.style.backgroundColor='rgba(0,0,0,0.1)'"
+          >
+            &times;
+          </button>
+        </div>
+        
+        <div class="create-post-actions" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--fb-divider); padding-top: 12px;">
+          <!-- Barra Agregar a tu publicación -->
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 0.85rem; color: var(--fb-text-secondary); font-weight: 600;">Agregar a tu publicación:</span>
+            
+            <!-- Botón Foto/Video Personalizado -->
+            <label 
+              for="imagenPost" 
+              style="cursor: pointer; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; transition: background-color 0.2s;" 
+              onmouseover="this.style.backgroundColor='var(--fb-divider)'" 
+              onmouseout="this.style.backgroundColor='transparent'"
+              title="Cargar Imagen"
+            >
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="#45BD62">
+                <path d="M19 4H5a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3zm1 13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v10z"/>
+                <path d="M13.5 10.5c.828 0 1.5-.672 1.5-1.5s-.672-1.5-1.5-1.5-1.5.672-1.5 1.5.672 1.5 1.5 1.5zM17.207 11.293a1 1 0 0 0-1.414 0L13 14l-2.293-2.293a1 1 0 0 0-1.414 0l-4 4A1 1 0 0 0 6 17.414h12a1 1 0 0 0 .707-1.707l-1.5-1.5z"/>
+              </svg>
+            </label>
+            <input 
+              type="file" 
+              id="imagenPost" 
+              (change)="onFileSelected($event)" 
+              accept="image/*" 
+              style="display: none;" 
+            />
+          </div>
+
+          <!-- Botón de publicar (Ancho Completo abajo en diseño, o alineado a la derecha en la barra) -->
+          <button 
+            class="btn-primary" 
+            (click)="crearPost()" 
+            [disabled]="!nuevoTitulo.trim() || !nuevaDescripcion.trim()"
+            style="padding: 8px 24px; border-radius: 6px; border: none; background-color: var(--fb-blue); color: white; font-weight: 700; cursor: pointer; transition: background-color 0.2s;"
+            [style.opacity]="(!nuevoTitulo.trim() || !nuevaDescripcion.trim()) ? '0.5' : '1'"
+            [style.cursor]="(!nuevoTitulo.trim() || !nuevaDescripcion.trim()) ? 'not-allowed' : 'pointer'"
+          >
+            Publicar
+          </button>
+        </div>
+      </div>
+
+      <!-- Controles de ordenamiento -->
+      <div class="feed-filters card" style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px; padding: 12px;">
+        <span style="font-weight: 600; font-size: 0.9rem; color: var(--fb-text-primary);">Ordenar por:</span>
+        <button 
+          class="btn-filter" 
+          [style.background-color]="sortBy === 'fecha' ? 'var(--fb-active)' : 'transparent'" 
+          [style.color]="sortBy === 'fecha' ? 'white' : 'var(--fb-text-primary)'" 
+          [style.border-color]="sortBy === 'fecha' ? 'var(--fb-active)' : 'var(--fb-border)'"
+          (click)="changeSort('fecha')" 
+          style="padding: 6px 14px; border-radius: 18px; border: 1px solid; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s;"
+        >
+          Fecha
+        </button>
+        <button 
+          class="btn-filter" 
+          [style.background-color]="sortBy === 'likes' ? 'var(--fb-active)' : 'transparent'" 
+          [style.color]="sortBy === 'likes' ? 'white' : 'var(--fb-text-primary)'" 
+          [style.border-color]="sortBy === 'likes' ? 'var(--fb-active)' : 'var(--fb-border)'"
+          (click)="changeSort('likes')" 
+          style="padding: 6px 14px; border-radius: 18px; border: 1px solid; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s;"
+        >
+          Me gusta
+        </button>
+      </div>
+
+      <!-- Lista de Publicaciones -->
+      <div class="posts-list">
+        <div *ngIf="posts().length === 0 && !isLoading()" class="no-posts-card card">
+          <p>No hay publicaciones aún. ¡Sé el primero en compartir algo!</p>
+        </div>
+
+        <div *ngIf="isLoading()" class="loading-posts">
+          <span class="spinner"></span> Cargando publicaciones...
+        </div>
+
+        <app-post-card 
+          *ngFor="let post of posts()" 
+          [post]="post"
+          [currentUserId]="currentUser.id"
+          [currentUserRole]="currentUser.perfil"
+          (likeToggled)="onLikeToggled($event)"
+          (deleteRequested)="onDeleteRequested($event)"
+        ></app-post-card>
+
+        <!-- Paginación -->
+        <div class="pagination-controls card" *ngIf="posts().length > 0 || offset > 0" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-top: 16px;">
+          <button 
+            class="btn-secondary" 
+            (click)="prevPage()" 
+            [disabled]="!hasPrevPage"
+            style="padding: 8px 16px; border-radius: 6px; border: 1px solid var(--fb-border); background-color: var(--fb-bg-secondary); color: var(--fb-text-primary); cursor: pointer; font-weight: 600;"
+          >
+            Anterior
+          </button>
+          <span style="font-weight: 600; font-size: 0.9rem; color: var(--fb-text-primary);">Página {{ currentPage }}</span>
+          <button 
+            class="btn-secondary" 
+            (click)="nextPage()" 
+            [disabled]="!hasNextPage"
+            style="padding: 8px 16px; border-radius: 6px; border: 1px solid var(--fb-border); background-color: var(--fb-bg-secondary); color: var(--fb-text-primary); cursor: pointer; font-weight: 600;"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Columna Derecha: Panel Lateral -->
+    <aside class="sidebar-right">
+      <div class="card">
+        <h3>Acciones rápidas</h3>
+        <p class="text-muted">¡Bienvenido a utnLab, la red social universitaria!</p>
+        <div class="divider"></div>
+        <p class="stats-text"><strong>Total de publicaciones:</strong> {{ posts().length }}</p>
+      </div>
+    </aside>
+  </div>
 </div>

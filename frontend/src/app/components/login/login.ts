@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Auth } from '../../core/services/auth';
@@ -22,6 +22,7 @@ export class Login {
   constructor(
     private readonly auth: Auth,
     private readonly router: Router,
+    private readonly cdr: ChangeDetectorRef,
   ) {
     // If already logged in, redirect to feed
     if (this.auth.isLoggedIn()) {
@@ -44,10 +45,12 @@ export class Login {
     this.auth.login({ username: this.username, password: this.password }).subscribe({
       next: () => {
         this.router.navigate(['/publicaciones']);
+        this.cdr.markForCheck();
       },
       error: (err) => {
         const errMsg = err.error?.data?.message || err.error?.message || 'Usuario o contraseña incorrectos. Por favor, intenta de nuevo.';
         this.openModal('Error de Inicio de Sesión', errMsg);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -60,9 +63,11 @@ export class Login {
     this.modalTitle = title;
     this.modalMessage = message;
     this.showModal = true;
+    this.cdr.markForCheck();
   }
 
   closeModal() {
     this.showModal = false;
+    this.cdr.markForCheck();
   }
 }

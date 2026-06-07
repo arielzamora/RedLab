@@ -102,14 +102,241 @@
   }
 }
 
-.post-actions {
+.post-stats-row {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  color: var(--fb-text-secondary);
   border-top: 1px solid var(--fb-divider);
-  padding-top: 4px;
+}
+
+.reaction-icons {
+  display: flex;
+  align-items: center;
+}
+
+.reaction-icon-blue {
+  background-color: #1877f2;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: -4px;
+  z-index: 2;
+  border: 1.5px solid var(--fb-surface);
+}
+
+.reaction-icon-red {
+  background-color: #f02849;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  border: 1.5px solid var(--fb-surface);
+}
+
+.post-action-buttons-row {
+  display: flex;
+  gap: 4px;
+  padding: 4px 8px;
+}
+
+.btn-post-action {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+  font-family: inherit;
+  color: var(--fb-text-secondary);
+
+  &:hover {
+    background-color: var(--fb-bg-secondary);
+  }
+
+  &.active {
+    color: #1877f2;
+  }
+}
+
+.comments-section {
+  border-top: 1px solid var(--fb-divider);
+  padding: 12px 16px;
+  background-color: var(--fb-bg-secondary);
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.comment-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  margin-bottom: 0;
+}
+
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.comment-avatar-placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--fb-border);
+  flex-shrink: 0;
+}
+
+.comment-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: calc(100% - 40px);
+}
+
+.comment-bubble {
+  background-color: var(--fb-surface);
+  border-radius: 18px;
+  padding: 8px 12px;
+  border: 1px solid var(--fb-divider);
+  width: 100%;
+}
+
+.comment-author {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--fb-text-primary);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.comment-text {
+  font-size: 0.85rem;
+  color: var(--fb-text-primary);
+  margin: 0;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.comment-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+  margin-left: 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--fb-text-secondary);
+
+  .comment-action-link {
+    cursor: pointer;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.new-comment-form {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.new-comment-bubble {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--fb-surface);
+  border-radius: 18px;
+  padding: 8px 12px;
+  border: 1px solid var(--fb-divider);
+}
+
+.new-comment-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--fb-text-primary);
+  font-size: 0.85rem;
+  outline: none;
+  padding-bottom: 6px;
+  font-family: inherit;
+}
+
+.new-comment-tools-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--fb-divider);
+  padding-top: 6px;
+  margin-top: 2px;
+}
+
+.comment-tool-icons {
+  display: flex;
+  gap: 10px;
+  color: var(--fb-text-secondary);
   
-  button {
-    flex: 1;
-    margin: 0 4px;
-    padding: 8px;
+  svg {
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.15s;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.btn-comment-submit {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #1877f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s;
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
   }
 }

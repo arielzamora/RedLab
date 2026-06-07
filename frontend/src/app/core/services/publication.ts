@@ -10,11 +10,15 @@ export class Publication {
 
   constructor(private http: HttpClient) { }
 
-  getPublications(limit: number = 10, offset: number = 0) {
-    return this.http.get(`${this.apiUrl}?limit=${limit}&offset=${offset}`);
+  getPublications(limit: number = 10, offset: number = 0, sortBy: string = 'fecha', autor?: string) {
+    let url = `${this.apiUrl}?limit=${limit}&offset=${offset}&sortBy=${sortBy}`;
+    if (autor) {
+      url += `&autor=${autor}`;
+    }
+    return this.http.get(url);
   }
 
-  createPublication(data: any) {
+  createPublication(data: FormData | any) {
     return this.http.post(this.apiUrl, data);
   }
 
@@ -28,5 +32,9 @@ export class Publication {
 
   unlikePublication(id: string) {
     return this.http.delete(`${this.apiUrl}/${id}/like`);
+  }
+
+  addComment(id: string, texto: string) {
+    return this.http.post(`${this.apiUrl}/${id}/comments`, { texto });
   }
 }

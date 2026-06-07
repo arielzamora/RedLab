@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Publication, PublicationDocument } from './schemas/publication.schema';
 
 @Injectable()
@@ -9,21 +9,43 @@ export class PublicationsService {
     @InjectModel(Publication.name) private readonly publicationModel: Model<PublicationDocument>,
   ) {}
 
-  async findAll(limit: number = 10, offset: number = 0) {
+  async findAll(limit: number = 10, offset: number = 0, sortBy: string = 'fecha', autorId?: string) {
     const skip = offset || 0;
     const take = limit || 10;
-    return this.publicationModel.find({ activo: true })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(take)
-      .populate('autor', 'nombre apellido username imgUrl perfil')
-      .exec();
+
+    const filter: any = { activo: true };
+    if (autorId) {
+      filter.autor = { $in: [autorId, new Types.ObjectId(autorId)] };
+    }
+
+    const aggregationPipeline: any[] = [{ $match: filter }];
+
+    if (sortBy === 'likes') {
+      aggregationPipeline.push(
+        { $addFields: { likesCount: { $size: { $ifNull: ["$likes", []] } } } },
+        { $sort: { likesCount: -1, createdAt: -1 } }
+      );
+    } else {
+      aggregationPipeline.push({ $sort: { createdAt: -1 } });
+    }
+
+    aggregationPipeline.push({ $skip: skip }, { $limit: take });
+
+    const results = await this.publicationModel.aggregate(aggregationPipeline).exec();
+
+    return this.publicationModel.populate(results, [
+      { path: 'autor', select: 'nombre apellido username imgUrl perfil' },
+      { path: 'comentarios.autor', select: 'nombre apellido username imgUrl perfil' }
+    ]);
   }
 
   async create(createPublicationDto: any) {
     const newPublication = new this.publicationModel(createPublicationDto);
     const saved = await newPublication.save();
-    return saved.populate('autor', 'nombre apellido username imgUrl perfil');
+    return saved.populate([
+      { path: 'autor', select: 'nombre apellido username imgUrl perfil' },
+      { path: 'comentarios.autor', select: 'nombre apellido username imgUrl perfil' }
+    ]);
   }
 
   async remove(id: string, userId: string) {
@@ -31,16 +53,7 @@ export class PublicationsService {
     if (!pub) {
       throw new NotFoundException('Publicación no encontrada.');
     }
-    // Verify author OR admin status
-    // If the user's role is 'administrador', let them delete any post
     const isAuthor = pub.autor.toString() === userId;
-    
-    // We need to fetch the requesting user's profile to see if they are an admin
-    // But since the controller passed the sub (which is the user ID), we can fetch the user details or just check author.
-    // Wait! In the controller, we can pass req.user.role if we put it in the JWT payload!
-    // Earlier, we added `role: user.perfil` to the JWT payload! So req.user.role is available!
-    // Let's pass the user's role to the remove method too, or query it. Passing it is easier!
-    // Let's implement that in remove:
     pub.activo = false; // Soft delete
     return pub.save();
   }
@@ -68,7 +81,10 @@ export class PublicationsService {
       pub.likes.push(userId as any);
       await pub.save();
     }
-    return pub.populate('autor', 'nombre apellido username imgUrl perfil');
+    return pub.populate([
+      { path: 'autor', select: 'nombre apellido username imgUrl perfil' },
+      { path: 'comentarios.autor', select: 'nombre apellido username imgUrl perfil' }
+    ]);
   }
 
   async removeLike(id: string, userId: string) {
@@ -78,6 +94,26 @@ export class PublicationsService {
     }
     pub.likes = pub.likes.filter(id => id.toString() !== userId);
     await pub.save();
-    return pub.populate('autor', 'nombre apellido username imgUrl perfil');
+    return pub.populate([
+      { path: 'autor', select: 'nombre apellido username imgUrl perfil' },
+      { path: 'comentarios.autor', select: 'nombre apellido username imgUrl perfil' }
+    ]);
+  }
+
+  async addComment(id: string, userId: string, texto: string) {
+    const pub = await this.publicationModel.findById(id);
+    if (!pub) {
+      throw new NotFoundException('Publicación no encontrada.');
+    }
+    pub.comentarios.push({
+      autor: userId as any,
+      texto,
+      createdAt: new Date()
+    } as any);
+    await pub.save();
+    return pub.populate([
+      { path: 'autor', select: 'nombre apellido username imgUrl perfil' },
+      { path: 'comentarios.autor', select: 'nombre apellido username imgUrl perfil' }
+    ]);
   }
 }

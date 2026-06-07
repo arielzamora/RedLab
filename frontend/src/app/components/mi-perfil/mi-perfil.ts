@@ -1,18 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Auth } from '../../core/services/auth';
+import { Publication } from '../../core/services/publication';
+import { PostCard } from '../post-card/post-card';
 
 @Component({
   selector: 'app-mi-perfil',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PostCard],
   templateUrl: './mi-perfil.html',
   styleUrl: './mi-perfil.scss',
 })
 export class MiPerfil implements OnInit {
-  currentUser: any = null;
+  currentUser = signal<any>(null);
+  myPosts = signal<any[]>([]);
 
   // Form fields
   nombre = '';
@@ -23,39 +26,103 @@ export class MiPerfil implements OnInit {
   selectedFile: File | null = null;
 
   // Modal properties
-  showModal = false;
-  modalTitle = '';
-  modalMessage = '';
-  isSuccess = false;
-  isLoading = false;
+  showModal = signal(false);
+  modalTitle = signal('');
+  modalMessage = signal('');
+  isSuccess = signal(false);
+  isLoading = signal(false);
 
   constructor(
     private readonly auth: Auth,
+    private readonly publicationService: Publication,
     private readonly router: Router,
+    private readonly cdr: ChangeDetectorRef,
   ) {
     if (!this.auth.isLoggedIn()) {
       this.router.navigate(['/login']);
     } else {
-      this.currentUser = this.auth.getCurrentUser();
+      this.currentUser.set(this.auth.getCurrentUser());
     }
   }
 
   ngOnInit() {
-    if (this.currentUser) {
-      this.nombre = this.currentUser.nombre || '';
-      this.apellido = this.currentUser.apellido || '';
-      this.descripcion = this.currentUser.descripcion || '';
-      this.perfil = this.currentUser.perfil || 'usuario';
+    const user = this.currentUser();
+    if (user) {
+      this.nombre = user.nombre || '';
+      this.apellido = user.apellido || '';
+      this.descripcion = user.descripcion || '';
+      this.perfil = user.perfil || 'usuario';
 
-      if (this.currentUser.fechaNacimiento) {
+      if (user.fechaNacimiento) {
         // Format Date to YYYY-MM-DD for date input
-        const date = new Date(this.currentUser.fechaNacimiento);
+        const date = new Date(user.fechaNacimiento);
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         this.fechaNacimiento = `${year}-${month}-${day}`;
       }
+
+      this.loadMyPosts();
+      this.cdr.markForCheck();
     }
+  }
+
+  loadMyPosts() {
+    const user = this.currentUser();
+    if (!user) return;
+    const userId = user.id || user._id;
+    this.publicationService.getPublications(3, 0, 'fecha', userId).subscribe({
+      next: (response: any) => {
+        this.myPosts.set(response.data || response);
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error al cargar mis publicaciones:', err);
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  onLikeToggled(post: any) {
+    const user = this.currentUser();
+    const userId = user ? (user.id || user._id) : '';
+    const isLiked = post.likes.includes(userId);
+    if (isLiked) {
+      this.publicationService.unlikePublication(post._id).subscribe({
+        next: (response: any) => {
+          const updated = response.data || response;
+          this.updateMyPostInList(updated);
+          this.cdr.markForCheck();
+        },
+        error: () => this.cdr.markForCheck()
+      });
+    } else {
+      this.publicationService.likePublication(post._id).subscribe({
+        next: (response: any) => {
+          const updated = response.data || response;
+          this.updateMyPostInList(updated);
+          this.cdr.markForCheck();
+        },
+        error: () => this.cdr.markForCheck()
+      });
+    }
+  }
+
+  onDeleteRequested(post: any) {
+    this.publicationService.deletePublication(post._id).subscribe({
+      next: () => {
+        this.myPosts.update(prev => prev.filter(p => p._id !== post._id));
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error al eliminar publicación:', err);
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  updateMyPostInList(updatedPost: any) {
+    this.myPosts.update(prev => prev.map(p => p._id === updatedPost._id ? updatedPost : p));
   }
 
   onFileSelected(event: any) {
@@ -71,7 +138,8 @@ export class MiPerfil implements OnInit {
       return;
     }
 
-    this.isLoading = true;
+    this.isLoading.set(true);
+    this.cdr.markForCheck();
 
     const formData = new FormData();
     formData.append('nombre', this.nombre);
@@ -85,9 +153,12 @@ export class MiPerfil implements OnInit {
       formData.append('imagenPerfil', this.selectedFile, this.selectedFile.name);
     }
 
-    this.auth.updateProfile(this.currentUser.id, formData).subscribe({
+    const user = this.currentUser();
+    const userId = user ? (user.id || user._id) : '';
+
+    this.auth.updateProfile(userId, formData).subscribe({
       next: (response: any) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         const updatedUser = response.data || response;
         
         // Map backend returned user _id back to id (since frontend Auth helper looks for .id)
@@ -105,14 +176,16 @@ export class MiPerfil implements OnInit {
 
         // Update localStorage
         localStorage.setItem('currentUser', JSON.stringify(mappedUser));
-        this.currentUser = mappedUser;
+        this.currentUser.set(mappedUser);
         
         this.openModal('Perfil Actualizado', 'Tu información se ha actualizado correctamente.', true);
+        this.cdr.markForCheck();
       },
       error: (err) => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         const errMsg = err.error?.data?.message || err.error?.message || 'No se pudo actualizar el perfil. Intenta de nuevo.';
         this.openModal('Error de Actualización', errMsg, false);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -121,16 +194,23 @@ export class MiPerfil implements OnInit {
     this.router.navigate(['/publicaciones']);
   }
 
+  logout() {
+    this.auth.logout();
+    this.router.navigate(['/login']);
+  }
+
   openModal(title: string, message: string, isSuccess: boolean = false) {
-    this.modalTitle = title;
-    this.modalMessage = message;
-    this.isSuccess = isSuccess;
-    this.showModal = true;
+    this.modalTitle.set(title);
+    this.modalMessage.set(message);
+    this.isSuccess.set(isSuccess);
+    this.showModal.set(true);
+    this.cdr.markForCheck();
   }
 
   closeModal() {
-    this.showModal = false;
-    if (this.isSuccess) {
+    this.showModal.set(false);
+    this.cdr.markForCheck();
+    if (this.isSuccess()) {
       // Refresh component or navigate back to feed
       this.router.navigate(['/publicaciones']);
     }

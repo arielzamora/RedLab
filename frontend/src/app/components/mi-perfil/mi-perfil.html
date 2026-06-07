@@ -1,31 +1,99 @@
-<div class="profile-wrapper" *ngIf="currentUser">
-  <div class="profile-container">
-    <!-- Botón Volver -->
-    <div class="header-actions">
-      <button class="btn-text-nav" (click)="goToFeed()">&larr; Volver al Feed</button>
+<div class="profile-wrapper" *ngIf="currentUser()" style="min-height: 100vh; background-color: var(--fb-bg); display: flex; flex-direction: column;">
+  <!-- Barra de Navegación Superior (Estilo Facebook) -->
+  <header class="fb-header" style="position: sticky; top: 0; z-index: 100; height: 56px; background-color: var(--fb-surface); border-bottom: 1px solid var(--fb-divider); box-shadow: 0 1px 2px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; width: 100%;">
+    <!-- Izquierda: Logo & Buscador -->
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div 
+        (click)="goToFeed()" 
+        style="background-color: var(--fb-blue); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.6rem; font-family: sans-serif; cursor: pointer; user-select: none;"
+        title="Ir al Feed"
+      >
+        u
+      </div>
+      <div style="position: relative; display: flex; align-items: center;">
+        <input 
+          type="text" 
+          placeholder="Buscar en utnLab..." 
+          style="background-color: var(--fb-bg); border: none; border-radius: 20px; padding: 8px 16px 8px 36px; font-size: 0.9rem; outline: none; width: 220px; color: var(--fb-text-primary);" 
+        />
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--fb-text-secondary)" style="position: absolute; left: 12px;">
+          <path d="M19.072 17.658L15.347 13.93C16.38 12.568 17 10.857 17 9c0-4.411-3.589-8-8-8S1 4.589 1 9s3.589 8 8 8c1.857 0 3.568-.62 4.93-1.653l3.728 3.725 1.414-1.414zM9 15c-3.309 0-6-2.691-6-6s2.691-6 6-6 6 2.691 6 6-2.691 6-6 6z"/>
+        </svg>
+      </div>
     </div>
 
+    <!-- Centro: Iconos de Navegación -->
+    <div style="display: flex; align-items: center; gap: 40px;">
+      <!-- Icono Home -->
+      <div 
+        (click)="goToFeed()" 
+        style="display: flex; align-items: center; justify-content: center; width: 80px; height: 56px; border-bottom: 4px solid transparent; cursor: pointer; color: var(--fb-text-secondary);"
+        onmouseover="this.style.color='var(--fb-text-primary)'"
+        onmouseout="this.style.color='var(--fb-text-secondary)'"
+        title="Inicio / Feed"
+      >
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+      </div>
+
+      <!-- Icono Mi Perfil (Activo) -->
+      <div 
+        style="display: flex; align-items: center; justify-content: center; width: 80px; height: 56px; border-bottom: 4px solid var(--fb-blue); cursor: pointer; color: var(--fb-blue);"
+        title="Mi Perfil"
+      >
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Derecha: Perfil & Cerrar Sesión -->
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div 
+        style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 8px; border-radius: 20px; transition: background-color 0.2s; background-color: var(--fb-divider);" 
+      >
+        <img *ngIf="currentUser().imgUrl" [src]="currentUser().imgUrl" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" alt="Avatar" />
+        <div *ngIf="!currentUser().imgUrl" style="width: 32px; height: 32px; border-radius: 50%; background-color: var(--fb-border);"></div>
+        <span style="font-weight: 600; font-size: 0.9rem; color: var(--fb-text-primary);">{{ currentUser().nombre }}</span>
+      </div>
+
+      <button 
+        (click)="logout()" 
+        style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background-color: var(--fb-divider); border: none; cursor: pointer; color: var(--fb-text-primary); transition: filter 0.2s;"
+        onmouseover="this.style.filter='brightness(0.95)'"
+        onmouseout="this.style.filter='none'"
+        title="Cerrar sesión"
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <path d="M13 3h-2v10h2V3zm4.78 2.22l-1.42 1.42C18.23 8.12 19 9.97 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.03.77-3.88 2.14-5.36L5.72 5.22C3.99 7.02 3 9.4 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.6-1.01-4.98-2.72-6.78z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="profile-container" style="max-width: 1000px; margin: 20px auto; padding: 0 16px; width: 100%;">
     <div class="profile-content">
       <!-- Columna Izquierda: Tarjeta de Presentación -->
       <div class="profile-sidebar-card card">
         <div class="avatar-container">
-          <img *ngIf="currentUser.imgUrl" [src]="currentUser.imgUrl" class="avatar-large" alt="Avatar de Perfil" />
-          <div *ngIf="!currentUser.imgUrl" class="avatar-placeholder-large"></div>
+          <img *ngIf="currentUser().imgUrl" [src]="currentUser().imgUrl" class="avatar-large" alt="Avatar de Perfil" />
+          <div *ngIf="!currentUser().imgUrl" class="avatar-placeholder-large"></div>
         </div>
 
         <div class="user-details">
-          <h2>{{ currentUser.nombre }} {{ currentUser.apellido }}</h2>
-          <p class="username">&#64;{{ currentUser.username }}</p>
-          <p class="email">{{ currentUser.correo }}</p>
+          <h2>{{ currentUser().nombre }} {{ currentUser().apellido }}</h2>
+          <p class="username">&#64;{{ currentUser().username }}</p>
+          <p class="email">{{ currentUser().correo }}</p>
           
           <div class="divider"></div>
 
-          <div class="role-badge" [class.admin-badge]="currentUser.perfil === 'administrador'">
-            {{ currentUser.perfil === 'administrador' ? 'Administrador' : 'Usuario Estándar' }}
+          <div class="role-badge" [class.admin-badge]="currentUser().perfil === 'administrador'">
+            {{ currentUser().perfil === 'administrador' ? 'Administrador' : 'Usuario Estándar' }}
           </div>
           
-          <p class="user-bio" *ngIf="currentUser.descripcion">
-            <em>"{{ currentUser.descripcion }}"</em>
+          <p class="user-bio" *ngIf="currentUser().descripcion">
+            <em>"{{ currentUser().descripcion }}"</em>
           </p>
         </div>
       </div>
@@ -118,8 +186,8 @@
           <!-- Botones de Acción -->
           <div class="form-actions">
             <button type="button" class="btn-secondary" (click)="goToFeed()">Cancelar</button>
-            <button type="submit" class="btn-primary" [disabled]="isLoading">
-              @if (isLoading) {
+            <button type="submit" class="btn-primary" [disabled]="isLoading()">
+              @if (isLoading()) {
                 <span class="spinner"></span> Guardando...
               } @else {
                 Guardar Cambios
@@ -129,18 +197,38 @@
         </form>
       </div>
     </div>
+
+    <!-- Sección: Mis Últimas Publicaciones -->
+    <div class="my-posts-section" style="margin-top: 24px; max-width: 800px; margin-left: auto; margin-right: auto; padding-bottom: 30px;">
+      <h3 style="font-size: 1.3rem; margin-bottom: 12px; color: var(--fb-text-primary); font-weight: 700; border-bottom: 2px solid var(--fb-divider); padding-bottom: 8px;">Mis Últimas 3 Publicaciones y sus Comentarios</h3>
+      
+      <div *ngIf="myPosts().length === 0" class="card" style="padding: 24px; text-align: center; color: var(--fb-text-secondary); background-color: white; border-radius: 8px; border: 1px solid var(--fb-border);">
+        <p style="margin: 0; font-size: 0.95rem;">No tienes publicaciones todavía.</p>
+      </div>
+
+      <div class="posts-list" style="display: flex; flex-direction: column; gap: 16px; margin-top: 12px;">
+        <app-post-card 
+          *ngFor="let post of myPosts()" 
+          [post]="post"
+          [currentUserId]="currentUser()?.id || currentUser()?._id"
+          [currentUserRole]="currentUser()?.perfil"
+          (likeToggled)="onLikeToggled($event)"
+          (deleteRequested)="onDeleteRequested($event)"
+        ></app-post-card>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- Custom Modal for Alerts -->
-<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+<div class="modal-backdrop" *ngIf="showModal()" (click)="closeModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <span>{{ modalTitle }}</span>
+      <span>{{ modalTitle() }}</span>
       <button type="button" class="btn-close" (click)="closeModal()">&times;</button>
     </div>
     <div class="modal-body">
-      <p>{{ modalMessage }}</p>
+      <p>{{ modalMessage() }}</p>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn-primary" (click)="closeModal()">Entendido</button>

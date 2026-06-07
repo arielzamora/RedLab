@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Auth } from '../../core/services/auth';
@@ -34,6 +34,7 @@ export class Registro {
   constructor(
     private readonly auth: Auth,
     private readonly router: Router,
+    private readonly cdr: ChangeDetectorRef,
   ) {
     // If already logged in, redirect to feed
     if (this.auth.isLoggedIn()) {
@@ -91,10 +92,12 @@ export class Registro {
           next: () => {
             this.isLoading = false;
             this.router.navigate(['/publicaciones']);
+            this.cdr.markForCheck();
           },
           error: (loginErr) => {
             this.isLoading = false;
             this.router.navigate(['/login']);
+            this.cdr.markForCheck();
           }
         });
       },
@@ -102,6 +105,7 @@ export class Registro {
         this.isLoading = false;
         const errMsg = err.error?.data?.message || err.error?.message || 'Hubo un problema al crear tu cuenta. Por favor, intenta de nuevo.';
         this.openModal('Error de Registro', errMsg);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -114,9 +118,11 @@ export class Registro {
     this.modalTitle = title;
     this.modalMessage = message;
     this.showModal = true;
+    this.cdr.markForCheck();
   }
 
   closeModal() {
     this.showModal = false;
+    this.cdr.markForCheck();
   }
 }
