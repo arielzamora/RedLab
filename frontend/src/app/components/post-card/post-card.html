@@ -135,6 +135,7 @@
           class="new-comment-input"
           [(ngModel)]="nuevoComentario" 
           (keydown.enter)="$event.preventDefault(); agregarComentario()"
+          [disabled]="isSubmittingComment"
         />
         <!-- Icons bar -->
         <div class="new-comment-tools-row">
@@ -152,12 +153,17 @@
           <!-- Submit button -->
           <button 
             (click)="agregarComentario()" 
-            [disabled]="!nuevoComentario.trim()" 
+            [disabled]="!nuevoComentario.trim() || isSubmittingComment" 
             class="btn-comment-submit"
+            style="display: flex; align-items: center; justify-content: center;"
           >
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-            </svg>
+            @if (isSubmittingComment) {
+              <span class="spinner" style="width: 12px; height: 12px; border-width: 1.5px; border-top-color: var(--fb-blue); border-right-color: transparent; margin-right: 0;"></span>
+            } @else {
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+              </svg>
+            }
           </button>
         </div>
       </div>

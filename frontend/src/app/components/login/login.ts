@@ -13,6 +13,7 @@ import { Auth } from '../../core/services/auth';
 export class Login {
   username = '';
   password = '';
+  isLoading = false;
   
   // Custom modal properties
   showModal = false;
@@ -42,12 +43,17 @@ export class Login {
       return;
     }
 
+    this.isLoading = true;
+    this.cdr.markForCheck();
+
     this.auth.login({ username: this.username, password: this.password }).subscribe({
       next: () => {
+        this.isLoading = false;
         this.router.navigate(['/publicaciones']);
         this.cdr.markForCheck();
       },
       error: (err) => {
+        this.isLoading = false;
         const errMsg = err.error?.data?.message || err.error?.message || 'Usuario o contraseña incorrectos. Por favor, intenta de nuevo.';
         this.openModal('Error de Inicio de Sesión', errMsg);
         this.cdr.markForCheck();

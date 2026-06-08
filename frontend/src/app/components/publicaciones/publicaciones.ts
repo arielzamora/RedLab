@@ -16,6 +16,7 @@ import { Publication } from '../../core/services/publication';
 export class Publicaciones implements OnInit {
   posts = signal<any[]>([]);
   isLoading = signal(false);
+  isCreatingPost = signal(false);
   
   // Post Creation
   nuevoTitulo = '';
@@ -78,6 +79,8 @@ export class Publicaciones implements OnInit {
   crearPost() {
     if (!this.nuevoTitulo.trim() || !this.nuevaDescripcion.trim()) return;
 
+    this.isCreatingPost.set(true);
+
     const formData = new FormData();
     formData.append('titulo', this.nuevoTitulo.trim());
     formData.append('descripcion', this.nuevaDescripcion.trim());
@@ -87,6 +90,7 @@ export class Publicaciones implements OnInit {
 
     this.publicationService.createPublication(formData).subscribe({
       next: (response: any) => {
+        this.isCreatingPost.set(false);
         const newPost = response.data || response;
         if (this.sortBy === 'fecha' && this.offset === 0) {
           this.posts.update(prev => {
@@ -106,6 +110,7 @@ export class Publicaciones implements OnInit {
         if (fileInput) fileInput.value = '';
       },
       error: (err) => {
+        this.isCreatingPost.set(false);
         console.error('Error al crear publicación:', err);
       }
     });

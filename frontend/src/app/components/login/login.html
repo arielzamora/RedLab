@@ -33,7 +33,13 @@
             />
           </div>
 
-          <button type="submit" class="btn-primary login-btn">Iniciar sesión</button>
+          <button type="submit" class="btn-primary login-btn" [disabled]="isLoading">
+            @if (isLoading) {
+              <span class="spinner"></span> Iniciando sesión...
+            } @else {
+              Iniciar sesión
+            }
+          </button>
           
           <div class="forgot-password">
             <a href="javascript:void(0)">¿Olvidaste tu contraseña?</a>

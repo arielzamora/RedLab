@@ -21,6 +21,7 @@ export class PostCard {
 
   nuevoComentario = '';
   showComments = false;
+  isSubmittingComment = false;
 
   constructor(
     private readonly publicationService: Publication,
@@ -65,15 +66,21 @@ export class PostCard {
   }
 
   agregarComentario() {
-    if (!this.nuevoComentario.trim()) return;
+    if (!this.nuevoComentario.trim() || this.isSubmittingComment) return;
+    
+    this.isSubmittingComment = true;
+    this.cdr.markForCheck();
+
     this.publicationService.addComment(this.post._id, this.nuevoComentario).subscribe({
       next: (response: any) => {
+        this.isSubmittingComment = false;
         const updatedPost = response.data || response;
         this.post.comentarios = updatedPost.comentarios;
         this.nuevoComentario = '';
         this.cdr.markForCheck();
       },
       error: (err) => {
+        this.isSubmittingComment = false;
         console.error('Error al agregar comentario:', err);
         this.cdr.markForCheck();
       }

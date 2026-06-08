@@ -168,12 +168,16 @@
           <button 
             class="btn-primary" 
             (click)="crearPost()" 
-            [disabled]="!nuevoTitulo.trim() || !nuevaDescripcion.trim()"
-            style="padding: 8px 24px; border-radius: 6px; border: none; background-color: var(--fb-blue); color: white; font-weight: 700; cursor: pointer; transition: background-color 0.2s;"
-            [style.opacity]="(!nuevoTitulo.trim() || !nuevaDescripcion.trim()) ? '0.5' : '1'"
-            [style.cursor]="(!nuevoTitulo.trim() || !nuevaDescripcion.trim()) ? 'not-allowed' : 'pointer'"
+            [disabled]="!nuevoTitulo.trim() || !nuevaDescripcion.trim() || isCreatingPost()"
+            style="padding: 8px 24px; border-radius: 6px; border: none; background-color: var(--fb-blue); color: white; font-weight: 700; cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; gap: 4px;"
+            [style.opacity]="(!nuevoTitulo.trim() || !nuevaDescripcion.trim() || isCreatingPost()) ? '0.5' : '1'"
+            [style.cursor]="(!nuevoTitulo.trim() || !nuevaDescripcion.trim() || isCreatingPost()) ? 'not-allowed' : 'pointer'"
           >
-            Publicar
+            @if (isCreatingPost()) {
+              <span class="spinner" style="margin-right: 4px; border-top-color: #fff; border-right-color: transparent;"></span> Publicando...
+            } @else {
+              Publicar
+            }
           </button>
         </div>
       </div>

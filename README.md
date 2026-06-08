@@ -2,6 +2,10 @@
 
 Este proyecto es una red social de alta fidelidad diseñada siguiendo lineamientos modernos de UX/UI inspirados en Facebook. Está implementado como un **Monorepo** que integra un backend robusto y escalable en **NestJS** con un frontend interactivo y rápido en **Angular**.
 
+### 🌐 Demo en Producción
+Puedes acceder a la versión desplegada en vivo a través del siguiente enlace:
+👉 **[utnLab - Enlace de Despliegue](https://zealous-wave-07377ba0f.7.azurestaticapps.net/)**
+
 ---
 
 ## 🚀 Arquitectura y Tecnologías
