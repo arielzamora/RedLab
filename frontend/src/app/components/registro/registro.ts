@@ -55,6 +55,51 @@ export class Registro {
       return;
     }
 
+    // Nombre validation
+    const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]{2,50}$/;
+    if (!nameRegex.test(this.nombre.trim())) {
+      this.openModal('Validación de Nombre', 'El nombre debe tener al menos 2 caracteres y contener únicamente letras y espacios.');
+      return;
+    }
+
+    // Apellido validation
+    if (!nameRegex.test(this.apellido.trim())) {
+      this.openModal('Validación de Apellido', 'El apellido debe tener al menos 2 caracteres y contener únicamente letras y espacios.');
+      return;
+    }
+
+    // Correo validation
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(this.correo.trim())) {
+      this.openModal('Validación de Correo', 'Por favor, ingresa una dirección de correo electrónico válida (ejemplo@dominio.com).');
+      return;
+    }
+
+    // Nombre de usuario validation
+    const usernameRegex = /^[a-zA-Z0-9._-]{3,20}$/;
+    if (!usernameRegex.test(this.username.trim())) {
+      this.openModal('Validación de Usuario', 'El nombre de usuario debe tener entre 3 y 20 caracteres y contener únicamente letras, números, puntos, guiones o guiones bajos (sin espacios).');
+      return;
+    }
+
+    // Fecha de nacimiento validation
+    if (this.fechaNacimiento) {
+      const birthdate = new Date(this.fechaNacimiento);
+      const today = new Date();
+      
+      if (birthdate > today) {
+        this.openModal('Fecha de Nacimiento', 'La fecha de nacimiento no puede ser en el futuro.');
+        return;
+      }
+      
+      const minAgeDate = new Date();
+      minAgeDate.setFullYear(today.getFullYear() - 13);
+      if (birthdate > minAgeDate) {
+        this.openModal('Restricción de Edad', 'Debes ser mayor de 13 años para registrarte en utnLab.');
+        return;
+      }
+    }
+
     if (this.password !== this.repetirPassword) {
       this.openModal('Validación de Contraseña', 'Las contraseñas no coinciden.');
       return;
