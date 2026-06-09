@@ -182,3 +182,55 @@
     font-size: 1.25rem;
   }
 }
+
+/* Quick Login and Errors */
+.quick-login-container {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin-top: 2px;
+}
+
+.btn-quick-login {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: var(--border-radius-btn);
+  border: 1px solid var(--fb-border);
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  background-color: var(--fb-bg);
+  color: var(--fb-text-primary);
+
+  &:hover {
+    background-color: var(--fb-divider);
+    border-color: var(--fb-text-secondary);
+  }
+}
+
+.btn-admin {
+  border-left: 4px solid var(--fb-blue);
+}
+
+.btn-guest {
+  border-left: 4px solid #42b72a;
+}
+
+.input-error {
+  border-color: #e41e3f !important;
+  background-color: #ffeef0 !important;
+  
+  &:focus {
+    box-shadow: 0 0 0 2px rgba(228, 30, 63, 0.2) !important;
+  }
+}
+
+.error-message {
+  color: #e41e3f;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-top: 4px;
+  text-align: left;
+}
+

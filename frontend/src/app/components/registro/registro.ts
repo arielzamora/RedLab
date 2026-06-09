@@ -1,25 +1,17 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Auth } from '../../core/services/auth';
 
 @Component({
   selector: 'app-registro',
   standalone: true,
-  imports: [FormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './registro.html',
   styleUrl: './registro.scss',
 })
 export class Registro {
-  nombre = '';
-  apellido = '';
-  correo = '';
-  username = '';
-  password = '';
-  repetirPassword = '';
-  fechaNacimiento = '';
-  descripcion = '';
-  perfil = 'usuario';
+  registerForm: FormGroup;
   selectedFile: File | null = null;
 
   // Custom modal properties
@@ -32,6 +24,7 @@ export class Registro {
   isLoading = false;
 
   constructor(
+    private readonly fb: FormBuilder,
     private readonly auth: Auth,
     private readonly router: Router,
     private readonly cdr: ChangeDetectorRef,
@@ -40,6 +33,28 @@ export class Registro {
     if (this.auth.isLoggedIn()) {
       this.router.navigate(['/publicaciones']);
     }
+
+    this.registerForm = this.fb.group({
+      nombre: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]{2,50}$/)]],
+      apellido: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]{2,50}$/)]],
+      correo: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
+      username: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._-]{3,20}$/)]],
+      password: ['', [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[A-Z])(?=.*\d).{8,}$/)
+      ]],
+      repetirPassword: ['', [Validators.required]],
+      fechaNacimiento: [''],
+      descripcion: [''],
+      perfil: ['usuario']
+    }, { validators: this.passwordMatchValidator });
+  }
+
+  passwordMatchValidator(g: FormGroup) {
+    const password = g.get('password')?.value;
+    const repetirPassword = g.get('repetirPassword')?.value;
+    return password === repetirPassword ? null : { mismatch: true };
   }
 
   onFileSelected(event: any) {
@@ -50,41 +65,22 @@ export class Registro {
   }
 
   onSubmit() {
-    if (!this.nombre || !this.apellido || !this.correo || !this.username || !this.password || !this.repetirPassword) {
-      this.openModal('Campos requeridos', 'Por favor, completa todos los campos obligatorios.');
+    if (this.registerForm.invalid) {
+      this.registerForm.markAllAsTouched();
+      
+      if (this.registerForm.hasError('mismatch')) {
+        this.openModal('Validación de Contraseña', 'Las contraseñas no coinciden.');
+      } else {
+        this.openModal('Campos inválidos', 'Por favor, revisa que los datos ingresados cumplan con el formato correcto.');
+      }
       return;
     }
 
-    // Nombre validation
-    const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]{2,50}$/;
-    if (!nameRegex.test(this.nombre.trim())) {
-      this.openModal('Validación de Nombre', 'El nombre debe tener al menos 2 caracteres y contener únicamente letras y espacios.');
-      return;
-    }
+    const { nombre, apellido, correo, username, password, perfil, fechaNacimiento, descripcion } = this.registerForm.value;
 
-    // Apellido validation
-    if (!nameRegex.test(this.apellido.trim())) {
-      this.openModal('Validación de Apellido', 'El apellido debe tener al menos 2 caracteres y contener únicamente letras y espacios.');
-      return;
-    }
-
-    // Correo validation
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(this.correo.trim())) {
-      this.openModal('Validación de Correo', 'Por favor, ingresa una dirección de correo electrónico válida (ejemplo@dominio.com).');
-      return;
-    }
-
-    // Nombre de usuario validation
-    const usernameRegex = /^[a-zA-Z0-9._-]{3,20}$/;
-    if (!usernameRegex.test(this.username.trim())) {
-      this.openModal('Validación de Usuario', 'El nombre de usuario debe tener entre 3 y 20 caracteres y contener únicamente letras, números, puntos, guiones o guiones bajos (sin espacios).');
-      return;
-    }
-
-    // Fecha de nacimiento validation
-    if (this.fechaNacimiento) {
-      const birthdate = new Date(this.fechaNacimiento);
+    // Additional birthdate check
+    if (fechaNacimiento) {
+      const birthdate = new Date(fechaNacimiento);
       const today = new Date();
       
       if (birthdate > today) {
@@ -100,31 +96,20 @@ export class Registro {
       }
     }
 
-    if (this.password !== this.repetirPassword) {
-      this.openModal('Validación de Contraseña', 'Las contraseñas no coinciden.');
-      return;
-    }
-
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
-    if (!passwordRegex.test(this.password)) {
-      this.openModal('Validación de Contraseña', 'La contraseña debe tener al menos 8 caracteres, una letra mayúscula y un número.');
-      return;
-    }
-
     this.isLoading = true;
 
     const formData = new FormData();
-    formData.append('nombre', this.nombre);
-    formData.append('apellido', this.apellido);
-    formData.append('correo', this.correo);
-    formData.append('username', this.username);
-    formData.append('password', this.password);
-    formData.append('perfil', this.perfil);
-    if (this.fechaNacimiento) {
-      formData.append('fechaNacimiento', this.fechaNacimiento);
+    formData.append('nombre', nombre);
+    formData.append('apellido', apellido);
+    formData.append('correo', correo);
+    formData.append('username', username);
+    formData.append('password', password);
+    formData.append('perfil', perfil);
+    if (fechaNacimiento) {
+      formData.append('fechaNacimiento', fechaNacimiento);
     }
-    if (this.descripcion) {
-      formData.append('descripcion', this.descripcion);
+    if (descripcion) {
+      formData.append('descripcion', descripcion);
     }
     if (this.selectedFile) {
       formData.append('imagenPerfil', this.selectedFile, this.selectedFile.name);
@@ -133,13 +118,13 @@ export class Registro {
     this.auth.registro(formData).subscribe({
       next: () => {
         // Auto-login the user immediately after successful registration
-        this.auth.login({ username: this.username, password: this.password }).subscribe({
+        this.auth.login({ username: username, password: password }).subscribe({
           next: () => {
             this.isLoading = false;
             this.router.navigate(['/publicaciones']);
             this.cdr.markForCheck();
           },
-          error: (loginErr) => {
+          error: () => {
             this.isLoading = false;
             this.router.navigate(['/login']);
             this.cdr.markForCheck();

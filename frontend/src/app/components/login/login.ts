@@ -1,18 +1,17 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Auth } from '../../core/services/auth';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
 export class Login {
-  username = '';
-  password = '';
+  loginForm: FormGroup;
   isLoading = false;
   
   // Custom modal properties
@@ -21,6 +20,7 @@ export class Login {
   modalMessage = '';
 
   constructor(
+    private readonly fb: FormBuilder,
     private readonly auth: Auth,
     private readonly router: Router,
     private readonly cdr: ChangeDetectorRef,
@@ -29,24 +29,30 @@ export class Login {
     if (this.auth.isLoggedIn()) {
       this.router.navigate(['/publicaciones']);
     }
+
+    this.loginForm = this.fb.group({
+      username: ['', [Validators.required]],
+      password: ['', [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[A-Z])(?=.*\d).{8,}$/)
+      ]]
+    });
   }
 
   onSubmit() {
-    if (!this.username || !this.password) {
-      this.openModal('Campos requeridos', 'Por favor, ingresa tu correo/usuario y tu contraseña.');
-      return;
-    }
-
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
-    if (!passwordRegex.test(this.password)) {
-      this.openModal('Validación de Contraseña', 'La contraseña debe tener al menos 8 caracteres, una letra mayúscula y un número.');
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      this.openModal('Campos inválidos', 'Por favor, revisa que los datos ingresados cumplan con el formato correcto.');
       return;
     }
 
     this.isLoading = true;
     this.cdr.markForCheck();
 
-    this.auth.login({ username: this.username, password: this.password }).subscribe({
+    const credentials = this.loginForm.value;
+
+    this.auth.login(credentials).subscribe({
       next: () => {
         this.isLoading = false;
         this.router.navigate(['/publicaciones']);
@@ -59,6 +65,22 @@ export class Login {
         this.cdr.markForCheck();
       }
     });
+  }
+
+  quickLogin(role: 'admin' | 'invitado') {
+    if (role === 'admin') {
+      this.loginForm.setValue({
+        username: 'arielzamoradzur@gmail.com',
+        password: '1978ArielZ'
+      });
+    } else {
+      this.loginForm.setValue({
+        username: 'invitado',
+        password: '1978ArielZ'
+      });
+    }
+    this.cdr.markForCheck();
+    this.onSubmit();
   }
 
   goToRegister() {

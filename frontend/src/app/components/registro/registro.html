@@ -11,28 +11,32 @@
         <div class="divider"></div>
       </div>
 
-      <form (ngSubmit)="onSubmit()" class="register-form">
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
         <!-- Nombre & Apellido -->
         <div class="form-row">
           <div class="form-group">
             <input 
               type="text" 
-              name="nombre" 
+              formControlName="nombre" 
               placeholder="Nombre" 
               class="form-input" 
-              [(ngModel)]="nombre" 
-              required
+              [class.input-error]="registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched"
             />
+            @if (registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched) {
+              <div class="error-message">Solo letras (mín. 2).</div>
+            }
           </div>
           <div class="form-group">
             <input 
               type="text" 
-              name="apellido" 
+              formControlName="apellido" 
               placeholder="Apellido" 
               class="form-input" 
-              [(ngModel)]="apellido" 
-              required
+              [class.input-error]="registerForm.get('apellido')?.invalid && registerForm.get('apellido')?.touched"
             />
+            @if (registerForm.get('apellido')?.invalid && registerForm.get('apellido')?.touched) {
+              <div class="error-message">Solo letras (mín. 2).</div>
+            }
           </div>
         </div>
 
@@ -40,24 +44,28 @@
         <div class="form-group">
           <input 
             type="email" 
-            name="correo" 
+            formControlName="correo" 
             placeholder="Correo electrónico" 
             class="form-input" 
-            [(ngModel)]="correo" 
-            required
+            [class.input-error]="registerForm.get('correo')?.invalid && registerForm.get('correo')?.touched"
           />
+          @if (registerForm.get('correo')?.invalid && registerForm.get('correo')?.touched) {
+            <div class="error-message">Ingresa un correo válido (ejemplo@dominio.com).</div>
+          }
         </div>
 
         <!-- Nombre de Usuario -->
         <div class="form-group">
           <input 
             type="text" 
-            name="username" 
+            formControlName="username" 
             placeholder="Nombre de usuario (ej. jdoe)" 
             class="form-input" 
-            [(ngModel)]="username" 
-            required
+            [class.input-error]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"
           />
+          @if (registerForm.get('username')?.invalid && registerForm.get('username')?.touched) {
+            <div class="error-message">Mínimo 3 caracteres alfanuméricos sin espacios.</div>
+          }
         </div>
 
         <!-- Contraseña -->
@@ -65,22 +73,26 @@
           <div class="form-group">
             <input 
               type="password" 
-              name="password" 
+              formControlName="password" 
               placeholder="Contraseña nueva" 
               class="form-input" 
-              [(ngModel)]="password" 
-              required
+              [class.input-error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
             />
+            @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+              <div class="error-message">Mín. 8 caracteres, 1 mayúscula y 1 número.</div>
+            }
           </div>
           <div class="form-group">
             <input 
               type="password" 
-              name="repetirPassword" 
+              formControlName="repetirPassword" 
               placeholder="Repetir contraseña" 
               class="form-input" 
-              [(ngModel)]="repetirPassword" 
-              required
+              [class.input-error]="(registerForm.get('repetirPassword')?.invalid || registerForm.hasError('mismatch')) && registerForm.get('repetirPassword')?.touched"
             />
+            @if ((registerForm.get('repetirPassword')?.invalid || registerForm.hasError('mismatch')) && registerForm.get('repetirPassword')?.touched) {
+              <div class="error-message">Las contraseñas no coinciden.</div>
+            }
           </div>
         </div>
 
@@ -90,7 +102,6 @@
           <input 
             type="file" 
             id="imagenPerfil"
-            name="imagenPerfil" 
             class="form-input" 
             (change)="onFileSelected($event)"
             accept="image/*"
@@ -102,9 +113,8 @@
           <label for="perfil" class="field-label">Perfil de usuario</label>
           <select 
             id="perfil"
-            name="perfil" 
-            class="form-input select-input" 
-            [(ngModel)]="perfil"
+            formControlName="perfil" 
+            class="form-input select-input"
           >
             <option value="usuario">Usuario estándar</option>
             <option value="administrador">Administrador</option>
@@ -117,19 +127,17 @@
           <input 
             type="date" 
             id="fechaNacimiento"
-            name="fechaNacimiento" 
+            formControlName="fechaNacimiento" 
             class="form-input" 
-            [(ngModel)]="fechaNacimiento" 
           />
         </div>
 
         <!-- Descripción -->
         <div class="form-group">
           <textarea 
-            name="descripcion" 
+            formControlName="descripcion" 
             placeholder="Cuéntanos un poco sobre ti (opcional)..." 
             class="form-input textarea-input" 
-            [(ngModel)]="descripcion"
             rows="3"
           ></textarea>
         </div>
