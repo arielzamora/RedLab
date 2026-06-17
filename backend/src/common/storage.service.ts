@@ -64,6 +64,15 @@ export class StorageService {
     } catch (err) {
       console.error('Local file write failed:', err);
       throw new InternalServerErrorException('No se pudo guardar la imagen localmente.');
-    }
+  }
+
+  getDiagnostics() {
+    return {
+      provider: process.env.STORAGE_PROVIDER,
+      containerName: this.containerName,
+      hasConnectionString: !!process.env.AZURE_STORAGE_CONNECTION_STRING,
+      connectionStringLength: process.env.AZURE_STORAGE_CONNECTION_STRING ? process.env.AZURE_STORAGE_CONNECTION_STRING.length : 0,
+      initialized: !!this.blobServiceClient,
+    };
   }
 }
