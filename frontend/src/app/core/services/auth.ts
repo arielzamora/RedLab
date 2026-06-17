@@ -17,9 +17,13 @@ export class Auth {
       tap((response: any) => {
         // Mongoose backend wraps responses inside { data, statusCode } using TransformInterceptor
         const resData = response.data || response;
-        if (resData && resData.user) {
-          // Keep user info in localStorage for UI state, token is managed via HttpOnly cookies
-          localStorage.setItem('currentUser', JSON.stringify(resData.user));
+        if (resData) {
+          if (resData.user) {
+            localStorage.setItem('currentUser', JSON.stringify(resData.user));
+          }
+          if (resData.access_token) {
+            localStorage.setItem('token', resData.access_token);
+          }
         }
       })
     );
