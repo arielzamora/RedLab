@@ -17,8 +17,8 @@ export class Auth {
       tap((response: any) => {
         // Mongoose backend wraps responses inside { data, statusCode } using TransformInterceptor
         const resData = response.data || response;
-        if (resData && resData.access_token) {
-          localStorage.setItem('token', resData.access_token);
+        if (resData && resData.user) {
+          // Keep user info in localStorage for UI state, token is managed via HttpOnly cookies
           localStorage.setItem('currentUser', JSON.stringify(resData.user));
         }
       })
@@ -34,6 +34,10 @@ export class Auth {
   }
 
   logout(): void {
+    // Fire-and-forget server logout request to clear HttpOnly cookie
+    this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).subscribe({
+      error: (err) => console.error('Failed to notify backend logout:', err)
+    });
     localStorage.removeItem('token');
     localStorage.removeItem('currentUser');
   }
@@ -48,34 +52,12 @@ export class Auth {
   }
 
   isLoggedIn(): boolean {
-    const token = this.getToken();
-    if (!token) return false;
-    
-    // Check if token has expired
-    const tokenPayload = this.decodeToken(token);
-    if (!tokenPayload || !tokenPayload.exp) return false;
-    
-    const expiryTime = tokenPayload.exp * 1000;
-    return Date.now() < expiryTime;
+    // Rely on presence of local user state cache; server handles actual route protection via cookies
+    return this.getCurrentUser() !== null;
   }
 
   getSessionTimeRemaining(): number {
-    const token = this.getToken();
-    if (!token) return 0;
-    
-    const tokenPayload = this.decodeToken(token);
-    if (!tokenPayload || !tokenPayload.exp) return 0;
-    
-    const expiryTime = tokenPayload.exp * 1000;
-    const timeLeft = Math.max(0, expiryTime - Date.now());
-    return Math.floor(timeLeft / 1000); // return seconds remaining
-  }
-
-  private decodeToken(token: string): any {
-    try {
-      return JSON.parse(atob(token.split('.')[1]));
-    } catch (e) {
-      return null;
-    }
+    // Dummy session remaining indicator when using cookie-based auth
+    return this.isLoggedIn() ? 3600 : 0;
   }
 }

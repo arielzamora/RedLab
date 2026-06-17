@@ -6,11 +6,13 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { PublicationsModule } from './publications/publications.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost:27017/red-social'),
+    CommonModule,
     UsersModule, 
     AuthModule, 
     PublicationsModule

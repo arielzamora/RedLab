@@ -2,12 +2,14 @@ import { Controller, Get, Post, Patch, Body, Param, UseGuards, UseInterceptors, 
 import { UsersService } from './users.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { StorageService } from '../common/storage.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly storageService: StorageService,
+  ) {}
 
   @Get()
   findAll() {
@@ -21,15 +23,7 @@ export class UsersController {
 
   @Patch(':id')
   @UseGuards(AuthGuard)
-  @UseInterceptors(FileInterceptor('imagenPerfil', {
-    storage: diskStorage({
-      destination: './uploads',
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
-      }
-    })
-  }))
+  @UseInterceptors(FileInterceptor('imagenPerfil'))
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: any,
@@ -38,8 +32,7 @@ export class UsersController {
   ) {
     const payload = { ...updateUserDto };
     if (file) {
-      const baseUrl = `${req.protocol}://${req.get('host')}`;
-      payload.imgUrl = `${baseUrl}/uploads/${file.filename}`;
+      payload.imgUrl = await this.storageService.uploadFile(file, req);
     }
     return this.usersService.update(id, payload);
   }

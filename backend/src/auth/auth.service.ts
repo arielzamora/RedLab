@@ -2,12 +2,14 @@ import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/co
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { StorageService } from '../common/storage.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly storageService: StorageService,
   ) {}
 
   async registro(registroDto: any, file?: any, req?: any) {
@@ -32,8 +34,7 @@ export class AuthService {
     // Generate profile picture URL
     let imgUrl = '';
     if (file && req) {
-      const baseUrl = `${req.protocol}://${req.get('host')}`;
-      imgUrl = `${baseUrl}/uploads/${file.filename}`;
+      imgUrl = await this.storageService.uploadFile(file, req);
     }
 
     // Create user

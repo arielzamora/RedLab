@@ -2,13 +2,15 @@ import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards, Req, UseI
 import { PublicationsService } from './publications.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { StorageService } from '../common/storage.service';
 
 @Controller('publications')
 @UseGuards(AuthGuard)
 export class PublicationsController {
-  constructor(private readonly publicationsService: PublicationsService) {}
+  constructor(
+    private readonly publicationsService: PublicationsService,
+    private readonly storageService: StorageService,
+  ) {}
 
   @Get()
   findAll(
@@ -26,24 +28,15 @@ export class PublicationsController {
   }
 
   @Post()
-  @UseInterceptors(FileInterceptor('imagen', {
-    storage: diskStorage({
-      destination: './uploads',
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, `post-${uniqueSuffix}${extname(file.originalname)}`);
-      }
-    })
-  }))
-  create(
+  @UseInterceptors(FileInterceptor('imagen'))
+  async create(
     @Req() req: any, 
     @Body() createPublicationDto: any,
     @UploadedFile() file: any
   ) {
     const payload = { ...createPublicationDto, autor: req.user.sub };
     if (file) {
-      const baseUrl = `${req.protocol}://${req.get('host')}`;
-      payload.imgUrl = `${baseUrl}/uploads/${file.filename}`;
+      payload.imgUrl = await this.storageService.uploadFile(file, req);
     }
     return this.publicationsService.create(payload);
   }

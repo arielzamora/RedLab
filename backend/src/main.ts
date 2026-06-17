@@ -7,10 +7,22 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { join } from 'path';
 import * as fs from 'fs';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.enableCors(); // Enable CORS for frontend requests
+  
+  // Register cookie-parser
+  app.use(cookieParser());
+
+  // Enable CORS with credentials for specific origins
+  app.enableCors({
+    origin: [
+      'http://localhost:4200',
+      'https://zealous-wave-07377ba0f.7.azurestaticapps.net'
+    ],
+    credentials: true,
+  });
 
   // Ensure uploads directory exists and serve it as static files
   const uploadsDir = join(__dirname, '..', 'uploads');

@@ -1,23 +1,13 @@
-import { Controller, Post, Body, UseInterceptors, UploadedFile, Req } from '@nestjs/common';
+import { Controller, Post, Body, UseInterceptors, UploadedFile, Req, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('registro')
-  @UseInterceptors(FileInterceptor('imagenPerfil', {
-    storage: diskStorage({
-      destination: './uploads',
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
-      }
-    })
-  }))
+  @UseInterceptors(FileInterceptor('imagenPerfil'))
   registro(
     @Body() registroDto: any,
     @UploadedFile() file: any,
@@ -27,7 +17,27 @@ export class AuthController {
   }
 
   @Post('login')
-  login(@Body() loginDto: any) {
-    return this.authService.login(loginDto);
+  async login(
+    @Body() loginDto: any,
+    @Res({ passthrough: true }) res: any
+  ) {
+    const result = await this.authService.login(loginDto);
+    res.cookie('access_token', result.access_token, {
+      httpOnly: true,
+      secure: true, // Secure is required for sameSite: 'none'
+      sameSite: 'none', // Allow cookie to be sent on cross-origin requests
+      maxAge: 3600000, // 1 hour
+    });
+    return result;
+  }
+
+  @Post('logout')
+  logout(@Res({ passthrough: true }) res: any) {
+    res.clearCookie('access_token', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+    });
+    return { success: true };
   }
 }
