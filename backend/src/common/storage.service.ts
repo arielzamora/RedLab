@@ -67,14 +67,36 @@ export class StorageService {
     }
   }
 
-  getDiagnostics() {
+  async getDiagnostics() {
     const connStr = process.env.AZURE_STORAGE_CONNECTION_STRING;
+    let testError: any = null;
+    let containerProperties: any = null;
+
+    if (this.blobServiceClient) {
+      try {
+        const containerClient = this.blobServiceClient.getContainerClient(this.containerName);
+        const props = await containerClient.getProperties();
+        containerProperties = {
+          blobPublicAccess: props.blobPublicAccess,
+          lastModified: props.lastModified,
+        };
+      } catch (err: any) {
+        testError = {
+          message: err.message,
+          code: err.code,
+          statusCode: err.statusCode,
+        };
+      }
+    }
+
     return {
       provider: process.env.STORAGE_PROVIDER,
       containerName: this.containerName,
       hasConnectionString: !!connStr,
       connectionStringLength: connStr ? connStr.length : 0,
       initialized: !!this.blobServiceClient,
+      testError,
+      containerProperties,
     };
   }
 }
