@@ -75,13 +75,46 @@ export class StorageService {
     if (this.blobServiceClient) {
       try {
         const containerClient = this.blobServiceClient.getContainerClient(this.containerName);
+        
+        // Test 1: getProperties
         const props = await containerClient.getProperties();
         containerProperties = {
           blobPublicAccess: props.blobPublicAccess,
           lastModified: props.lastModified,
         };
+
+        // Test 2: createIfNotExists
+        try {
+          await containerClient.createIfNotExists({ access: 'blob' });
+        } catch (createErr: any) {
+          testError = {
+            step: 'createIfNotExists with access: blob',
+            message: createErr.message,
+            code: createErr.code,
+            statusCode: createErr.statusCode,
+          };
+        }
+
+        // Test 3: upload
+        if (!testError) {
+          try {
+            const blockBlobClient = containerClient.getBlockBlobClient('test-diagnostics-file.txt');
+            const testContent = 'test';
+            await blockBlobClient.upload(Buffer.from(testContent), testContent.length, {
+              blobHTTPHeaders: { blobContentType: 'text/plain' }
+            });
+          } catch (uploadErr: any) {
+            testError = {
+              step: 'blockBlobClient.upload',
+              message: uploadErr.message,
+              code: uploadErr.code,
+              statusCode: uploadErr.statusCode,
+            };
+          }
+        }
       } catch (err: any) {
         testError = {
+          step: 'getProperties (initial connection)',
           message: err.message,
           code: err.code,
           statusCode: err.statusCode,
