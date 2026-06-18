@@ -111,12 +111,18 @@
               type="text" 
               placeholder="Título de la publicación..." 
               [(ngModel)]="nuevoTitulo" 
+              maxlength="100"
+              (paste)="$event.preventDefault()"
+              (copy)="$event.preventDefault()"
               style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--fb-border); outline: none; font-size: 0.95rem; font-weight: 600; color: var(--fb-text-primary); background-color: var(--fb-bg-secondary);" 
               required 
             />
             <textarea 
               placeholder="¿De qué trata tu publicación?" 
               [(ngModel)]="nuevaDescripcion" 
+              maxlength="500"
+              (paste)="$event.preventDefault()"
+              (copy)="$event.preventDefault()"
               style="width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--fb-border); outline: none; font-size: 0.9rem; resize: vertical; min-height: 80px; color: var(--fb-text-primary); background-color: var(--fb-bg-secondary);" 
               required
             ></textarea>

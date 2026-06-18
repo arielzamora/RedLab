@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Publication, PublicationDocument } from './schemas/publication.schema';
@@ -40,6 +40,14 @@ export class PublicationsService {
   }
 
   async create(createPublicationDto: any) {
+    const { titulo, descripcion } = createPublicationDto;
+    if (titulo && titulo.length > 100) {
+      throw new BadRequestException('El título no puede superar los 100 caracteres.');
+    }
+    if (descripcion && descripcion.length > 500) {
+      throw new BadRequestException('La descripción no puede superar los 500 caracteres.');
+    }
+
     const newPublication = new this.publicationModel(createPublicationDto);
     const saved = await newPublication.save();
     return saved.populate([

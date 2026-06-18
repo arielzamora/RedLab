@@ -78,6 +78,7 @@ export class Publicaciones implements OnInit {
 
   crearPost() {
     if (!this.nuevoTitulo.trim() || !this.nuevaDescripcion.trim()) return;
+    if (this.nuevoTitulo.length > 100 || this.nuevaDescripcion.length > 500) return;
 
     this.isCreatingPost.set(true);
 
