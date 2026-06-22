@@ -1,1 +1,22 @@
-<router-outlet />
+<div *ngIf="isLoading()" class="app-loading-screen">
+  <div class="app-spinner"></div>
+  <p class="app-loading-text">Cargando utnLab...</p>
+</div>
+
+<router-outlet *ngIf="!isLoading()" />
+
+<!-- Global Session Extension Modal -->
+<div class="modal-backdrop" *ngIf="showSessionModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header" style="font-size: 1.15rem; color: var(--fb-text-primary); font-weight: 700; border-bottom: 1px solid var(--fb-divider); padding-bottom: 8px;">
+      <span>Extender Sesión</span>
+    </div>
+    <div class="modal-body" style="padding: 16px 0; color: var(--fb-text-secondary); font-size: 0.95rem;">
+      <p>Tu sesión de seguridad va a expirar en 5 minutos por inactividad. ¿Deseas extender tu sesión?</p>
+    </div>
+    <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--fb-divider); padding-top: 12px;">
+      <button type="button" class="btn-text" (click)="logoutDueToInactivity()" style="padding: 8px 16px; font-weight: 600; cursor: pointer;">Cerrar Sesión</button>
+      <button type="button" class="btn-primary" (click)="extendSession()" style="padding: 8px 16px; font-weight: 600; cursor: pointer;">Extender Sesión</button>
+    </div>
+  </div>
+</div>

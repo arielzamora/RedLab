@@ -22,9 +22,9 @@
 
   <!-- Cuerpo -->
   <div class="post-body">
-    <h3 class="post-title" *ngIf="post.titulo" style="font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; color: var(--fb-text-primary);">{{ post.titulo }}</h3>
+    <h3 class="post-title" *ngIf="post.titulo" style="font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; color: var(--fb-text-primary); cursor: pointer;" (click)="goToDetail()">{{ post.titulo }}</h3>
     <p class="post-text">{{ post.descripcion || post.texto }}</p>
-    <img *ngIf="post.imgUrl" [src]="post.imgUrl" class="post-image" alt="Imagen de publicación" />
+    <img *ngIf="post.imgUrl" [src]="post.imgUrl" class="post-image" alt="Imagen de publicación" style="cursor: pointer;" (click)="goToDetail()" />
   </div>
 
   <!-- Stats row (Facebook-style) -->
@@ -47,7 +47,7 @@
     </div>
     
     <!-- Right: Comments count -->
-    <div style="cursor: pointer; font-weight: 500;" (click)="toggleCommentsVisibility()">
+    <div style="cursor: pointer; font-weight: 500;" (click)="goToDetail()">
       <span>{{ post.comentarios?.length || 0 }} comentarios</span>
     </div>
   </div>
@@ -72,101 +72,13 @@
 
     <!-- Comment Button -->
     <button 
-      (click)="toggleCommentsVisibility()" 
+      (click)="goToDetail()" 
       class="btn-post-action"
-      [class.active]="showComments"
     >
       <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
         <path d="M9 10.5h6a1 1 0 0 1 0 2H9a1 1 0 0 1 0-2zm0 3h6a1 1 0 0 1 0 2H9a1 1 0 0 1 0-2zm12-9v12a3 3 0 0 1-3 3H7.83l-4.3 4.3c-.94.94-2.53.27-2.53-1.06V4.5A3 3 0 0 1 4 1.5h14a3 3 0 0 1 3 3zm-2 0a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12.59l2.29-2.29A1 1 0 0 1 6 15.5h12a1 1 0 0 0 1-1V4.5z"/>
       </svg>
       <span>Comentar</span>
     </button>
-  </div>
-
-  <!-- Collapsible Comments Section -->
-  <div class="comments-section" *ngIf="showComments">
-    <h4 style="font-size: 0.9rem; margin-bottom: 12px; color: var(--fb-text-secondary); font-weight: 600;">Comentarios</h4>
-    
-    <!-- Comments List -->
-    <div class="comments-list" *ngIf="post.comentarios?.length > 0">
-      <div class="comment-item" *ngFor="let comment of post.comentarios">
-        <!-- Commenter Avatar -->
-        <img *ngIf="comment.autor?.imgUrl" [src]="comment.autor?.imgUrl" class="comment-avatar" alt="Avatar Comentario" />
-        <div *ngIf="!comment.autor?.imgUrl" class="comment-avatar-placeholder"></div>
-        
-        <!-- Comment Content Column -->
-        <div class="comment-content-wrapper">
-          <!-- Comment Bubble -->
-          <div class="comment-bubble">
-            <span class="comment-author">
-              {{ comment.autor?.nombre }} {{ comment.autor?.apellido }}
-            </span>
-            <p class="comment-text">
-              {{ comment.texto }}
-            </p>
-          </div>
-          
-          <!-- Comment Action Links -->
-          <div class="comment-actions-row">
-            <span>{{ comment.createdAt | date:'short' }}</span>
-            <span class="comment-action-link">Me gusta</span>
-            <span class="comment-action-link">Responder</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Empty State for comments -->
-    <div *ngIf="post.comentarios?.length === 0" style="padding: 12px; text-align: center; color: var(--fb-text-secondary); font-size: 0.85rem;">
-      No hay comentarios aún. ¡Sé el primero en comentar!
-    </div>
-
-    <!-- New Comment Form -->
-    <div class="new-comment-form">
-      <!-- User Avatar -->
-      <img *ngIf="currentUserAvatar" [src]="currentUserAvatar" class="comment-avatar" alt="My Avatar" />
-      <div *ngIf="!currentUserAvatar" class="comment-avatar-placeholder"></div>
-      
-      <!-- Input Wrapper -->
-      <div class="new-comment-bubble">
-        <input 
-          type="text" 
-          placeholder="Escribe un comentario..." 
-          class="new-comment-input"
-          [(ngModel)]="nuevoComentario" 
-          (keydown.enter)="$event.preventDefault(); agregarComentario()"
-          [disabled]="isSubmittingComment"
-        />
-        <!-- Icons bar -->
-        <div class="new-comment-tools-row">
-          <!-- Emoji, camera, sticker buttons -->
-          <div class="comment-tool-icons">
-            <!-- Smiley icon -->
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14H11v-2h2v2zm0-4H11V7h2v5z"/></svg>
-            <!-- Emoji icon -->
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-3.5-9c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm7 0c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 3c.67 1.34 2.02 2 3.5 2s2.83-.66 3.5-2H8.5z"/></svg>
-            <!-- Camera icon -->
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
-            <!-- Sticker/GIF icon -->
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 15H5v-2h7v2zm4-4H5v-2h11v2zm0-4H5V8h11v2z"/></svg>
-          </div>
-          <!-- Submit button -->
-          <button 
-            (click)="agregarComentario()" 
-            [disabled]="!nuevoComentario.trim() || isSubmittingComment" 
-            class="btn-comment-submit"
-            style="display: flex; align-items: center; justify-content: center;"
-          >
-            @if (isSubmittingComment) {
-              <span class="spinner" style="width: 12px; height: 12px; border-width: 1.5px; border-top-color: var(--fb-blue); border-right-color: transparent; margin-right: 0;"></span>
-            } @else {
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-              </svg>
-            }
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 </div>

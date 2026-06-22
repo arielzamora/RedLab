@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards, Req, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Req, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
 import { PublicationsService } from './publications.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -63,5 +63,36 @@ export class PublicationsController {
     @Body('texto') texto: string
   ) {
     return this.publicationsService.addComment(id, req.user.sub, texto);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.publicationsService.findOne(id);
+  }
+
+  @Get(':id/comments')
+  getComments(
+    @Param('id') id: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string
+  ) {
+    return this.publicationsService.getComments(
+      id,
+      limit ? +limit : 5,
+      offset ? +offset : 0
+    );
+  }
+
+  @Put(':id/comments/:commentId')
+  updateComment(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Param('commentId') commentId: string,
+    @Body('texto') texto: string
+  ) {
+    if (!texto || !texto.trim()) {
+      throw new BadRequestException('El comentario no puede estar vacío.');
+    }
+    return this.publicationsService.updateComment(id, commentId, req.user.sub, texto);
   }
 }

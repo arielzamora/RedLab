@@ -90,4 +90,29 @@ export class AuthService {
       },
     };
   }
+
+  async autorizar(userId: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user || !user.activo) {
+      throw new UnauthorizedException('Usuario no encontrado o inactivo.');
+    }
+    const userObj = user.toObject();
+    delete userObj.password;
+    return userObj;
+  }
+
+  async refrescar(userPayload: any) {
+    const newPayload = { 
+      sub: userPayload.sub, 
+      username: userPayload.username, 
+      email: userPayload.email, 
+      role: userPayload.role 
+    };
+    const accessToken = this.jwtService.sign(newPayload);
+    const userDetails = await this.autorizar(userPayload.sub);
+    return { 
+      access_token: accessToken,
+      user: userDetails
+    };
+  }
 }

@@ -1,0 +1,40 @@
+.detail-wrapper {
+  background-color: var(--fb-bg);
+  min-height: 100vh;
+}
+
+.post-card {
+  border: 1px solid var(--fb-border);
+}
+
+.comments-card {
+  border: 1px solid var(--fb-border);
+}
+
+.admin-badge {
+  background-color: #ffebee !important;
+  color: #c62828 !important;
+  border: 1px solid #ffcdd2;
+}
+
+.btn-post-action {
+  transition: background-color 0.2s;
+  &:hover {
+    background-color: var(--fb-divider);
+  }
+}
+
+.comment-item {
+  animation: commentFadeIn 0.3s ease-out;
+}
+
+@keyframes commentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

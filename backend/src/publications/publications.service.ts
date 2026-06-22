@@ -124,4 +124,65 @@ export class PublicationsService {
       { path: 'comentarios.autor', select: 'nombre apellido username imgUrl perfil' }
     ]);
   }
+
+  async findOne(id: string) {
+    const pub = await this.publicationModel.findById(id);
+    if (!pub || !pub.activo) {
+      throw new NotFoundException('Publicación no encontrada.');
+    }
+    return pub.populate([
+      { path: 'autor', select: 'nombre apellido username imgUrl perfil' },
+      { path: 'comentarios.autor', select: 'nombre apellido username imgUrl perfil' }
+    ]);
+  }
+
+  async getComments(id: string, limit: number = 5, offset: number = 0) {
+    const pub = await this.publicationModel.findById(id).populate({
+      path: 'comentarios.autor',
+      select: 'nombre apellido username imgUrl perfil'
+    });
+    if (!pub) {
+      throw new NotFoundException('Publicación no encontrada.');
+    }
+
+    // Sort comments descending by createdAt
+    const sortedComments = [...pub.comentarios].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    
+    // Paginate
+    const paginatedComments = sortedComments.slice(offset, offset + limit);
+
+    return {
+      data: paginatedComments,
+      total: sortedComments.length,
+      limit,
+      offset
+    };
+  }
+
+  async updateComment(id: string, commentId: string, userId: string, newTexto: string) {
+    const pub = await this.publicationModel.findById(id);
+    if (!pub) {
+      throw new NotFoundException('Publicación no encontrada.');
+    }
+
+    const comment = pub.comentarios.find(c => (c as any)._id.toString() === commentId);
+    if (!comment) {
+      throw new NotFoundException('Comentario no encontrado.');
+    }
+
+    if (comment.autor.toString() !== userId) {
+      throw new UnauthorizedException('No tienes permiso para editar este comentario.');
+    }
+
+    comment.texto = newTexto;
+    comment.modificado = true;
+    await pub.save();
+
+    const populated = await this.publicationModel.populate(pub, {
+      path: 'comentarios.autor',
+      select: 'nombre apellido username imgUrl perfil'
+    });
+    
+    return populated.comentarios.find(c => (c as any)._id.toString() === commentId);
+  }
 }

@@ -2,20 +2,20 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { tap } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Auth {
   private apiUrl = `${environment.apiUrl}/auth`;
+  sessionStarted = new Subject<void>();
 
   constructor(private http: HttpClient) { }
 
   login(credentials: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/login`, credentials).pipe(
       tap((response: any) => {
-        // Mongoose backend wraps responses inside { data, statusCode } using TransformInterceptor
         const resData = response.data || response;
         if (resData) {
           if (resData.user) {
@@ -24,6 +24,7 @@ export class Auth {
           if (resData.access_token) {
             localStorage.setItem('token', resData.access_token);
           }
+          this.sessionStarted.next();
         }
       })
     );
@@ -38,7 +39,6 @@ export class Auth {
   }
 
   logout(): void {
-    // Fire-and-forget server logout request to clear HttpOnly cookie
     this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).subscribe({
       error: (err) => console.error('Failed to notify backend logout:', err)
     });
@@ -56,12 +56,35 @@ export class Auth {
   }
 
   isLoggedIn(): boolean {
-    // Rely on presence of local user state cache; server handles actual route protection via cookies
     return this.getCurrentUser() !== null;
   }
 
-  getSessionTimeRemaining(): number {
-    // Dummy session remaining indicator when using cookie-based auth
-    return this.isLoggedIn() ? 3600 : 0;
+  autorizar(): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/autorizar`, {}).pipe(
+      tap((response: any) => {
+        const resData = response.data || response;
+        if (resData) {
+          localStorage.setItem('currentUser', JSON.stringify(resData));
+          this.sessionStarted.next();
+        }
+      })
+    );
+  }
+
+  refrescar(): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/refrescar`, {}).pipe(
+      tap((response: any) => {
+        const resData = response.data || response;
+        if (resData) {
+          if (resData.access_token) {
+            localStorage.setItem('token', resData.access_token);
+          }
+          if (resData.user) {
+            localStorage.setItem('currentUser', JSON.stringify(resData.user));
+          }
+          this.sessionStarted.next();
+        }
+      })
+    );
   }
 }

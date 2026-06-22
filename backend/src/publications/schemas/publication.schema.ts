@@ -14,6 +14,9 @@ export class Comment {
 
   @Prop({ default: Date.now })
   createdAt: Date;
+
+  @Prop({ default: false })
+  modificado: boolean;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

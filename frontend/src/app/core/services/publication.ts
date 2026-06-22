@@ -18,6 +18,10 @@ export class Publication {
     return this.http.get(url);
   }
 
+  getPublicationById(id: string) {
+    return this.http.get(`${this.apiUrl}/${id}`);
+  }
+
   createPublication(data: FormData | any) {
     return this.http.post(this.apiUrl, data);
   }
@@ -36,5 +40,13 @@ export class Publication {
 
   addComment(id: string, texto: string) {
     return this.http.post(`${this.apiUrl}/${id}/comments`, { texto });
+  }
+
+  getComments(id: string, limit: number = 5, offset: number = 0) {
+    return this.http.get(`${this.apiUrl}/${id}/comments?limit=${limit}&offset=${offset}`);
+  }
+
+  editComment(id: string, commentId: string, texto: string) {
+    return this.http.put(`${this.apiUrl}/${id}/comments/${commentId}`, { texto });
   }
 }

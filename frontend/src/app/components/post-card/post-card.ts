@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Publication } from '../../core/services/publication';
 import { Auth } from '../../core/services/auth';
 
@@ -19,23 +20,22 @@ export class PostCard {
   @Output() likeToggled = new EventEmitter<any>();
   @Output() deleteRequested = new EventEmitter<any>();
 
-  nuevoComentario = '';
-  showComments = false;
-  isSubmittingComment = false;
-
   constructor(
     private readonly publicationService: Publication,
     private readonly auth: Auth,
+    private readonly router: Router,
     private readonly cdr: ChangeDetectorRef
   ) {}
 
   get isLiked(): boolean {
-    return this.post?.likes?.includes(this.currentUserId);
+    if (!this.post || !this.post.likes || !this.currentUserId) return false;
+    return this.post.likes.includes(this.currentUserId);
   }
 
   get canDelete(): boolean {
     if (!this.post || !this.currentUserId) return false;
-    return this.post.autor?._id === this.currentUserId || this.currentUserRole === 'administrador';
+    const authorId = this.post.autor?._id || this.post.autor?.id || this.post.autor;
+    return authorId === this.currentUserId || this.currentUserRole === 'administrador';
   }
 
   get authorName(): string {
@@ -47,14 +47,8 @@ export class PostCard {
     return this.post?.autor?.imgUrl || '';
   }
 
-  get currentUserAvatar(): string {
-    const user = this.auth.getCurrentUser();
-    return user?.imgUrl || '';
-  }
-
-  toggleCommentsVisibility() {
-    this.showComments = !this.showComments;
-    this.cdr.markForCheck();
+  goToDetail() {
+    this.router.navigate(['/publicaciones', this.post._id]);
   }
 
   toggleLike() {
@@ -63,27 +57,5 @@ export class PostCard {
 
   onDelete() {
     this.deleteRequested.emit(this.post);
-  }
-
-  agregarComentario() {
-    if (!this.nuevoComentario.trim() || this.isSubmittingComment) return;
-    
-    this.isSubmittingComment = true;
-    this.cdr.markForCheck();
-
-    this.publicationService.addComment(this.post._id, this.nuevoComentario).subscribe({
-      next: (response: any) => {
-        this.isSubmittingComment = false;
-        const updatedPost = response.data || response;
-        this.post.comentarios = updatedPost.comentarios;
-        this.nuevoComentario = '';
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        this.isSubmittingComment = false;
-        console.error('Error al agregar comentario:', err);
-        this.cdr.markForCheck();
-      }
-    });
   }
 }

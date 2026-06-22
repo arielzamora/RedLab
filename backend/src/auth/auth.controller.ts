@@ -1,6 +1,7 @@
-import { Controller, Post, Body, UseInterceptors, UploadedFile, Req, Res } from '@nestjs/common';
+import { Controller, Post, Body, UseInterceptors, UploadedFile, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from './guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -26,7 +27,7 @@ export class AuthController {
       httpOnly: true,
       secure: true, // Secure is required for sameSite: 'none'
       sameSite: 'none', // Allow cookie to be sent on cross-origin requests
-      maxAge: 3600000, // 1 hour
+      maxAge: 900000, // 15 minutes
     });
     return result;
   }
@@ -39,5 +40,27 @@ export class AuthController {
       sameSite: 'none',
     });
     return { success: true };
+  }
+
+  @Post('autorizar')
+  @UseGuards(AuthGuard)
+  async autorizar(@Req() req: any) {
+    return this.authService.autorizar(req.user.sub);
+  }
+
+  @Post('refrescar')
+  @UseGuards(AuthGuard)
+  async refrescar(
+    @Req() req: any,
+    @Res({ passthrough: true }) res: any
+  ) {
+    const result = await this.authService.refrescar(req.user);
+    res.cookie('access_token', result.access_token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: 900000, // 15 minutes
+    });
+    return result;
   }
 }
