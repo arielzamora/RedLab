@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Param, UseGuards, UseInterceptors, UploadedFile, Req } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, UseGuards, UseInterceptors, UploadedFile, Req, BadRequestException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -30,6 +30,17 @@ export class UsersController {
     @UploadedFile() file: any,
     @Req() req: any
   ) {
+    const { nombre, apellido, descripcion } = updateUserDto;
+    if (nombre && nombre.length > 50) {
+      throw new BadRequestException('El nombre no puede superar los 50 caracteres.');
+    }
+    if (apellido && apellido.length > 50) {
+      throw new BadRequestException('El apellido no puede superar los 50 caracteres.');
+    }
+    if (descripcion && descripcion.length > 200) {
+      throw new BadRequestException('La descripción no puede superar los 200 caracteres.');
+    }
+
     const payload = { ...updateUserDto };
     if (file) {
       payload.imgUrl = await this.storageService.uploadFile(file, req);

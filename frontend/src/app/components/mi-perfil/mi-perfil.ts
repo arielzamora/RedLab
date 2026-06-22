@@ -138,6 +138,21 @@ export class MiPerfil implements OnInit {
       return;
     }
 
+    if (this.nombre.length > 50) {
+      this.openModal('Límite de caracteres', 'El nombre no puede superar los 50 caracteres.');
+      return;
+    }
+
+    if (this.apellido.length > 50) {
+      this.openModal('Límite de caracteres', 'El apellido no puede superar los 50 caracteres.');
+      return;
+    }
+
+    if (this.descripcion && this.descripcion.length > 200) {
+      this.openModal('Límite de caracteres', 'La descripción no puede superar los 200 caracteres.');
+      return;
+    }
+
     this.isLoading.set(true);
     this.cdr.markForCheck();
 

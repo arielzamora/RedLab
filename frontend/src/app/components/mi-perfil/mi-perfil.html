@@ -116,6 +116,9 @@
                 name="nombre" 
                 class="form-input" 
                 [(ngModel)]="nombre" 
+                maxlength="50"
+                (copy)="$event.preventDefault()"
+                (paste)="$event.preventDefault()"
                 required
               />
             </div>
@@ -127,6 +130,9 @@
                 name="apellido" 
                 class="form-input" 
                 [(ngModel)]="apellido" 
+                maxlength="50"
+                (copy)="$event.preventDefault()"
+                (paste)="$event.preventDefault()"
                 required
               />
             </div>
@@ -140,6 +146,9 @@
               name="descripcion" 
               class="form-input textarea-input" 
               [(ngModel)]="descripcion"
+              maxlength="200"
+              (copy)="$event.preventDefault()"
+              (paste)="$event.preventDefault()"
               rows="3"
             ></textarea>
           </div>
