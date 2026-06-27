@@ -2,15 +2,14 @@
   <!-- Cabecera -->
   <div class="post-header">
     <div class="author-info-wrapper">
-      <img *ngIf="authorAvatar" [src]="authorAvatar" class="avatar-image" alt="Avatar" />
-      <div *ngIf="!authorAvatar" class="avatar-placeholder"></div>
+      <img [src]="authorAvatar | avatarFallback:post.autor?.nombre" class="avatar-image" alt="Avatar" />
       
       <div class="post-meta">
         <span class="user-name">{{ authorName }}</span>
         <span class="user-role-badge" [class.admin-badge]="post.autor?.perfil === 'administrador'">
           {{ post.autor?.perfil === 'administrador' ? 'Admin' : 'Usuario' }}
         </span>
-        <span class="post-date">{{ post.createdAt | date:'short' }}</span>
+        <span class="post-date">{{ post.createdAt | timeAgo }}</span>
       </div>
     </div>
 
@@ -24,7 +23,7 @@
   <div class="post-body">
     <h3 class="post-title" *ngIf="post.titulo" style="font-size: 1.15rem; font-weight: 700; margin-bottom: 6px; color: var(--fb-text-primary); cursor: pointer;" (click)="goToDetail()">{{ post.titulo }}</h3>
     <p class="post-text">{{ post.descripcion || post.texto }}</p>
-    <img *ngIf="post.imgUrl" [src]="post.imgUrl" class="post-image" alt="Imagen de publicación" style="cursor: pointer;" (click)="goToDetail()" />
+    <img *ngIf="post.imgUrl" [src]="post.imgUrl" appImgFallback class="post-image" alt="Imagen de publicación" style="cursor: pointer;" (click)="goToDetail()" />
   </div>
 
   <!-- Stats row (Facebook-style) -->

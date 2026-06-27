@@ -190,6 +190,14 @@ export class Publicaciones implements OnInit {
     this.router.navigate(['/mi-perfil']);
   }
 
+  goToUsersDashboard() {
+    this.router.navigate(['/dashboard/usuarios']);
+  }
+
+  goToStatsDashboard() {
+    this.router.navigate(['/dashboard/estadisticas']);
+  }
+
   logout() {
     this.auth.logout();
     this.router.navigate(['/login']);

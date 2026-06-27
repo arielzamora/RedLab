@@ -1,0 +1,264 @@
+<div class="dashboard-wrapper" *ngIf="currentUser">
+  <!-- Barra de Navegación Superior -->
+  <header class="fb-header" style="position: sticky; top: 0; z-index: 100; height: 56px; background-color: var(--fb-surface); border-bottom: 1px solid var(--fb-divider); box-shadow: 0 1px 2px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; padding: 0 16px;">
+    <!-- Izquierda: Logo -->
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div 
+        (click)="goToFeed()" 
+        style="background-color: var(--fb-blue); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.6rem; font-family: sans-serif; cursor: pointer; user-select: none;"
+        title="Volver al Feed"
+      >
+        u
+      </div>
+      <span style="font-weight: 700; font-size: 1.1rem; color: var(--fb-text-primary); cursor: pointer;" (click)="goToFeed()">utnLab Panel Admin</span>
+    </div>
+
+    <!-- Centro: Indicador de Vista -->
+    <div style="font-weight: 700; font-size: 1.2rem; color: var(--fb-blue);">
+      Estadísticas de la Comunidad
+    </div>
+
+    <!-- Derecha: Perfil -->
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div 
+        (click)="goToProfile()"
+        style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 8px; border-radius: 20px; transition: background-color 0.2s; background-color: var(--fb-divider);" 
+      >
+        <img [src]="currentUser.imgUrl | avatarFallback:currentUser.nombre" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" alt="Avatar" />
+        <span style="font-weight: 600; font-size: 0.9rem; color: var(--fb-text-primary);">{{ currentUser.nombre }}</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal (Grid de 2 Columnas: Sidebar + Main Content) -->
+  <div class="layout-container" style="margin-top: 10px; display: grid; grid-template-columns: 280px 1fr; gap: 20px; max-width: 1400px; margin-left: auto; margin-right: auto; padding: 0 16px;">
+    <!-- Sidebar Administrativa -->
+    <aside class="sidebar-left" style="background-color: var(--fb-surface); border-radius: var(--border-radius-card); padding: 16px; box-shadow: var(--shadow-card); height: fit-content; display: flex; flex-direction: column; gap: 12px;">
+      <div class="profile-shortcut" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; background-color: var(--fb-bg); margin-bottom: 8px;">
+        <img [src]="currentUser.imgUrl | avatarFallback:currentUser.nombre" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" alt="Avatar" />
+        <div style="display: flex; flex-direction: column;">
+          <span style="font-weight: 700; font-size: 0.95rem; color: var(--fb-text-primary);">{{ currentUser.nombre }} {{ currentUser.apellido }}</span>
+          <span style="font-size: 0.75rem; color: #c62828; font-weight: 700; background-color: #ffebee; padding: 2px 6px; border-radius: 12px; width: fit-content; margin-top: 4px;">Administrador</span>
+        </div>
+      </div>
+      
+      <div class="sidebar-actions" style="display: flex; flex-direction: column; gap: 8px;">
+        <button class="btn-sidebar" (click)="goToUsers()" style="text-align: left; padding: 12px 16px; border: none; border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 10px; background-color: transparent; color: var(--fb-text-primary); transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--fb-divider)'" onmouseout="this.style.backgroundColor='transparent'">
+          👤 Gestión de Usuarios
+        </button>
+        <button class="btn-sidebar active" style="text-align: left; padding: 12px 16px; border: none; border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 10px; background-color: var(--fb-blue); color: white;">
+          📊 Estadísticas
+        </button>
+        <div style="height: 1px; background-color: var(--fb-divider); margin: 8px 0;"></div>
+        <button class="btn-sidebar" (click)="goToFeed()" style="text-align: left; padding: 12px 16px; border: none; border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 10px; background-color: transparent; color: var(--fb-text-primary); transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--fb-divider)'" onmouseout="this.style.backgroundColor='transparent'">
+          🏠 Volver al Feed
+        </button>
+        <button class="btn-sidebar btn-danger" (click)="logout()" style="text-align: left; padding: 12px 16px; border: none; border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 10px; background-color: transparent; color: #c62828; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#ffebee'" onmouseout="this.style.backgroundColor='transparent'">
+          ❌ Cerrar sesión
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area: Filters & SVG Charts -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      
+      <!-- Panel de Filtros -->
+      <section class="card" style="background-color: var(--fb-surface); border-radius: var(--border-radius-card); padding: 16px; box-shadow: var(--shadow-card); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px;">
+        <div style="display: flex; flex-direction: column;">
+          <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--fb-text-primary);">Rango de Tiempo para Estadísticas</h4>
+          <span style="font-size: 0.8rem; color: var(--fb-text-secondary);">Selecciona las fechas para filtrar los gráficos en tiempo real</span>
+        </div>
+        
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <label style="font-size: 0.85rem; font-weight: 600; color: var(--fb-text-secondary);">Desde:</label>
+            <input 
+              type="date" 
+              [(ngModel)]="fechaInicio" 
+              (change)="onFilterChange()"
+              style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none; background-color: var(--fb-bg);" 
+            />
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <label style="font-size: 0.85rem; font-weight: 600; color: var(--fb-text-secondary);">Hasta:</label>
+            <input 
+              type="date" 
+              [(ngModel)]="fechaFin" 
+              (change)="onFilterChange()"
+              style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none; background-color: var(--fb-bg);" 
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading()" class="card" style="background-color: var(--fb-surface); border-radius: var(--border-radius-card); padding: 50px; text-align: center; box-shadow: var(--shadow-card);">
+        <span class="spinner" style="width: 32px; height: 32px; border-width: 2.5px; border-top-color: var(--fb-blue); border-right-color: transparent; margin-bottom: 16px;"></span>
+        <p style="font-weight: 600; color: var(--fb-text-secondary);">Generando gráficos de estadísticas...</p>
+      </div>
+
+      <!-- Grid de Gráficos -->
+      <div *ngIf="!isLoading()" style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+        
+        <!-- 1. Publicaciones por Usuario (Gráfico de Barras SVG) -->
+        <section class="card" style="background-color: var(--fb-surface); border-radius: var(--border-radius-card); padding: 20px; box-shadow: var(--shadow-card);">
+          <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 1.15rem; font-weight: 700; color: var(--fb-text-primary); border-bottom: 1px solid var(--fb-divider); padding-bottom: 8px;">
+            📊 Publicaciones por Usuario (Gráfico de Barras)
+          </h3>
+          
+          <div *ngIf="publicacionesPorUsuario().length === 0" style="padding: 30px; text-align: center; color: var(--fb-text-secondary);">
+            No hay publicaciones registradas en este rango de tiempo.
+          </div>
+
+          <div *ngIf="publicacionesPorUsuario().length > 0" style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
+            <div *ngFor="let item of publicacionesPorUsuario()" style="display: grid; grid-template-columns: 180px 1fr 50px; align-items: center; gap: 16px;">
+              
+              <!-- Datos de Usuario -->
+              <div style="display: flex; align-items: center; gap: 8px; overflow: hidden;">
+                <div style="font-weight: 600; font-size: 0.85rem; color: var(--fb-text-primary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                  {{ item.nombre }} {{ item.apellido }}
+                </div>
+              </div>
+              
+              <!-- Barra Horizontal SVG -->
+              <div style="width: 100%; background-color: var(--fb-bg); height: 24px; border-radius: 12px; overflow: hidden; position: relative;">
+                <div 
+                  [style.width.%]="(item.count / maxPublications) * 100" 
+                  style="height: 100%; border-radius: 12px; background: linear-gradient(90deg, #1877f2, #00bcd4); transition: width 1s cubic-bezier(0.1, 0.8, 0.3, 1);"
+                >
+                </div>
+              </div>
+              
+              <!-- Cantidad -->
+              <div style="font-weight: 700; font-size: 0.9rem; color: var(--fb-blue); text-align: right;">
+                {{ item.count }}
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- Fila de Gráficos Secundarios (2 columnas en pantallas grandes) -->
+        <div class="stats-secondary-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          
+          <!-- 2. Comentarios en el Tiempo (Gráfico de Área/Línea SVG) -->
+          <section class="card" style="background-color: var(--fb-surface); border-radius: var(--border-radius-card); padding: 20px; box-shadow: var(--shadow-card); display: flex; flex-direction: column;">
+            <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 1.15rem; font-weight: 700; color: var(--fb-text-primary); border-bottom: 1px solid var(--fb-divider); padding-bottom: 8px;">
+              📈 Comentarios Realizados (Gráfico de Línea)
+            </h3>
+
+            <div *ngIf="comentariosTotales().length === 0" style="padding: 40px; text-align: center; color: var(--fb-text-secondary); flex-grow: 1; display: flex; align-items: center; justify-content: center;">
+              No hay comentarios registrados en este rango de tiempo.
+            </div>
+
+            <div *ngIf="comentariosTotales().length > 0" style="position: relative; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; min-height: 250px;">
+              
+              <!-- SVG del gráfico -->
+              <svg viewBox="0 0 500 200" style="width: 100%; height: 200px; overflow: visible;">
+                <defs>
+                  <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#1877f2" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="#1877f2" stop-opacity="0.05"/>
+                  </linearGradient>
+                </defs>
+                
+                <!-- Grid Horizontal Lines -->
+                <line x1="25" y1="25" x2="475" y2="25" stroke="var(--fb-divider)" stroke-dasharray="4 4" />
+                <line x1="25" y1="100" x2="475" y2="100" stroke="var(--fb-divider)" stroke-dasharray="4 4" />
+                <line x1="25" y1="175" x2="475" y2="175" stroke="var(--fb-divider)" />
+
+                <!-- Filled Area -->
+                <path [attr.d]="lineChartAreaPath" fill="url(#areaGradient)" />
+
+                <!-- Stroke Line -->
+                <path [attr.d]="lineChartPath" fill="none" stroke="#1877f2" stroke-width="3" stroke-linecap="round" />
+
+                <!-- Dots on Data Points -->
+                <g *ngFor="let pt of linePoints">
+                  <circle 
+                    [attr.cx]="pt.x" 
+                    [attr.cy]="pt.y" 
+                    r="5" 
+                    fill="var(--fb-surface)" 
+                    stroke="#1877f2" 
+                    stroke-width="2.5"
+                    style="cursor: pointer; transition: r 0.2s;"
+                    onmouseover="this.setAttribute('r', '7')"
+                    onmouseout="this.setAttribute('r', '5')"
+                  >
+                    <title>{{ pt.label }}: {{ pt.value }} comentarios</title>
+                  </circle>
+                </g>
+              </svg>
+
+              <!-- Eje X (Etiquetas cortas de fecha) -->
+              <div style="display: flex; justify-content: space-between; padding: 4px 10px 0 10px; font-size: 0.75rem; color: var(--fb-text-secondary);">
+                <span>{{ comentariosTotales()[0].fecha | date:'dd/MM' }}</span>
+                <span *ngIf="comentariosTotales().length > 2">{{ middleCommentDate | date:'dd/MM' }}</span>
+                <span>{{ comentariosTotales()[comentariosTotales().length - 1].fecha | date:'dd/MM' }}</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. Comentarios por Publicación (Gráfico de Torta / Donut SVG) -->
+          <section class="card" style="background-color: var(--fb-surface); border-radius: var(--border-radius-card); padding: 20px; box-shadow: var(--shadow-card); display: flex; flex-direction: column;">
+            <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 1.15rem; font-weight: 700; color: var(--fb-text-primary); border-bottom: 1px solid var(--fb-divider); padding-bottom: 8px;">
+              🍩 Comentarios por Publicación (Gráfico de Donut)
+            </h3>
+
+            <div *ngIf="comentariosPorPublicacion().length === 0" style="padding: 40px; text-align: center; color: var(--fb-text-secondary); flex-grow: 1; display: flex; align-items: center; justify-content: center;">
+              No hay publicaciones en este rango de tiempo.
+            </div>
+
+            <div *ngIf="comentariosPorPublicacion().length > 0" style="display: flex; gap: 16px; align-items: center; justify-content: center; flex-grow: 1; flex-wrap: wrap;">
+              
+              <!-- SVG Donut Chart (Circumference 100) -->
+              <div style="position: relative; width: 140px; height: 140px;">
+                <svg viewBox="0 0 42 42" style="width: 100%; height: 100%; transform: rotate(-90deg); border-radius: 50%;">
+                  <!-- Center hole background -->
+                  <circle cx="21" cy="21" r="15.91549430918954" fill="var(--fb-surface)"></circle>
+                  
+                  <!-- Slices -->
+                  <circle 
+                    *ngFor="let slice of donutSlices"
+                    cx="21" 
+                    cy="21" 
+                    r="15.91549430918954" 
+                    fill="transparent" 
+                    [attr.stroke]="slice.color" 
+                    stroke-width="6" 
+                    [attr.stroke-dasharray]="slice.dashArray" 
+                    [attr.stroke-dashoffset]="slice.dashOffset"
+                    style="transition: stroke-width 0.2s; cursor: pointer;"
+                    onmouseover="this.setAttribute('stroke-width', '8')"
+                    onmouseout="this.setAttribute('stroke-width', '6')"
+                  >
+                    <title>{{ slice.title }}: {{ slice.count }} comentarios ({{ slice.percentage }}%)</title>
+                  </circle>
+                </svg>
+              </div>
+
+              <!-- Legend -->
+              <div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 180px; max-height: 180px; overflow-y: auto;">
+                <div *ngFor="let slice of donutSlices | slice:0:5" style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem;">
+                  <span [style.background-color]="slice.color" style="width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex-shrink: 0;"></span>
+                  <span style="font-weight: 600; color: var(--fb-text-primary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 130px;" [title]="slice.title">
+                    {{ slice.title }}
+                  </span>
+                  <span style="color: var(--fb-text-secondary); margin-left: auto;">{{ slice.count }} ({{ slice.percentage }}%)</span>
+                </div>
+                <div *ngIf="donutSlices.length > 5" style="font-size: 0.75rem; font-style: italic; color: var(--fb-text-secondary); padding-left: 20px;">
+                  + {{ donutSlices.length - 5 }} más...
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>

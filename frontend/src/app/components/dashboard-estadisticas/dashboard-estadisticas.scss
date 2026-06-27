@@ -1,0 +1,46 @@
+.dashboard-wrapper {
+  background-color: var(--fb-bg);
+  min-height: 100vh;
+}
+
+.layout-container {
+  margin-top: 16px;
+  grid-template-columns: 280px 1fr;
+  align-items: start;
+
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.sidebar-left {
+  position: sticky;
+  top: 76px;
+
+  .btn-sidebar {
+    transition: all 0.2s ease-in-out;
+    &:hover {
+      background-color: var(--fb-divider);
+    }
+    &.active {
+      background-color: var(--fb-blue);
+      color: white;
+    }
+  }
+}
+
+.card {
+  border: 1px solid var(--fb-divider);
+}
+
+.stats-secondary-grid {
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+circle {
+  transition: stroke-width 0.2s, r 0.2s;
+}

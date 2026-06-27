@@ -4,11 +4,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Publication } from '../../core/services/publication';
 import { Auth } from '../../core/services/auth';
+import { AvatarFallbackPipe } from '../../core/pipes/avatar-fallback.pipe';
+import { TimeAgoPipe } from '../../core/pipes/time-ago.pipe';
 
 @Component({
   selector: 'app-publicacion-detalle',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AvatarFallbackPipe, TimeAgoPipe],
   templateUrl: './publicacion-detalle.html',
   styleUrl: './publicacion-detalle.scss',
 })
@@ -188,6 +190,27 @@ export class PublicacionDetalle implements OnInit {
 
   get currentUserAvatar(): string {
     return this.currentUser?.imgUrl || '';
+  }
+
+  get canDelete(): boolean {
+    const p = this.post();
+    if (!p || !this.currentUser) return false;
+    const authorId = p.autor?._id || p.autor?.id || p.autor;
+    const userId = this.currentUser.id || this.currentUser._id;
+    return authorId === userId || this.currentUser.perfil === 'administrador';
+  }
+
+  deletePost() {
+    if (confirm('¿Estás seguro de que deseas dar de baja esta publicación? (Se ocultarán tanto la publicación como todos sus comentarios)')) {
+      this.publicationService.deletePublication(this.postId).subscribe({
+        next: () => {
+          this.goToFeed();
+        },
+        error: (err) => {
+          console.error('Error al dar de baja publicación:', err);
+        }
+      });
+    }
   }
 
   goToFeed() {

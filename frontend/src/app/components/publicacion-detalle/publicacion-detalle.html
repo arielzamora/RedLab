@@ -34,8 +34,7 @@
         (click)="goToProfile()"
         style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 8px; border-radius: 20px; transition: background-color 0.2s; background-color: var(--fb-divider);" 
       >
-        <img *ngIf="currentUserAvatar" [src]="currentUserAvatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" alt="Avatar" />
-        <div *ngIf="!currentUserAvatar" style="width: 32px; height: 32px; border-radius: 50%; background-color: var(--fb-border);"></div>
+        <img [src]="currentUserAvatar | avatarFallback:currentUser?.nombre" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" alt="Avatar" />
         <span style="font-weight: 600; font-size: 0.9rem; color: var(--fb-text-primary);">{{ currentUser?.nombre }}</span>
       </div>
     </div>
@@ -48,8 +47,7 @@
       <!-- Cabecera de la Publicación -->
       <div class="post-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <div class="author-info-wrapper" style="display: flex; align-items: center; gap: 12px;">
-          <img *ngIf="authorAvatar" [src]="authorAvatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" alt="Avatar" />
-          <div *ngIf="!authorAvatar" style="width: 48px; height: 48px; border-radius: 50%; background-color: var(--fb-border);"></div>
+          <img [src]="authorAvatar | avatarFallback:post().autor?.nombre" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" alt="Avatar" />
           
           <div class="post-meta" style="display: flex; flex-direction: column;">
             <div style="display: flex; align-items: center; gap: 8px;">
@@ -58,9 +56,21 @@
                 {{ post().autor?.perfil === 'administrador' ? 'Admin' : 'Usuario' }}
               </span>
             </div>
-            <span class="post-date" style="font-size: 0.8rem; color: var(--fb-text-secondary);">{{ post().createdAt | date:'medium' }}</span>
+            <span class="post-date" style="font-size: 0.8rem; color: var(--fb-text-secondary);">{{ post().createdAt | timeAgo }}</span>
           </div>
         </div>
+
+        <!-- Botón de Borrar -->
+        <button 
+          *ngIf="canDelete" 
+          (click)="deletePost()" 
+          style="background: transparent; border: none; font-size: 1.5rem; color: var(--fb-text-secondary); cursor: pointer; transition: all 0.2s; padding: 2px 10px; border-radius: 50%; display: flex; align-items: center; justify-content: center;"
+          onmouseover="this.style.backgroundColor='var(--fb-divider)'; this.style.color='#c62828';"
+          onmouseout="this.style.backgroundColor='transparent'; this.style.color='var(--fb-text-secondary)';"
+          title="Dar de baja publicación"
+        >
+          &times;
+        </button>
       </div>
 
       <!-- Título y Texto -->
@@ -105,8 +115,7 @@
 
       <!-- Formulario para agregar comentarios -->
       <div class="new-comment-form" style="display: flex; gap: 12px; margin-bottom: 24px;">
-        <img *ngIf="currentUserAvatar" [src]="currentUserAvatar" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" alt="My Avatar" />
-        <div *ngIf="!currentUserAvatar" style="width: 36px; height: 36px; border-radius: 50%; background-color: var(--fb-border);"></div>
+        <img [src]="currentUserAvatar | avatarFallback:currentUser?.nombre" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" alt="My Avatar" />
         
         <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px;">
           <textarea 
@@ -133,8 +142,7 @@
       <!-- Listado de comentarios -->
       <div class="comments-list" style="display: flex; flex-direction: column; gap: 16px;">
         <div class="comment-item" *ngFor="let comment of comments()" style="display: flex; gap: 12px;">
-          <img *ngIf="comment.autor?.imgUrl" [src]="comment.autor?.imgUrl" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" alt="Avatar" />
-          <div *ngIf="!comment.autor?.imgUrl" style="width: 36px; height: 36px; border-radius: 50%; background-color: var(--fb-border);"></div>
+          <img [src]="comment.autor?.imgUrl | avatarFallback:comment.autor?.nombre" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" alt="Avatar" />
           
           <div style="flex-grow: 1; display: flex; flex-direction: column;">
             <!-- Modo Edición -->
@@ -166,7 +174,7 @@
 
               <!-- Fila de Acciones del Comentario -->
               <div style="display: flex; align-items: center; gap: 12px; margin-top: 4px; padding-left: 8px; font-size: 0.8rem; color: var(--fb-text-secondary);">
-                <span>{{ comment.createdAt | date:'short' }}</span>
+                <span>{{ comment.createdAt | timeAgo }}</span>
                 <span *ngIf="comment.modificado" style="font-style: italic; font-weight: 600; color: var(--fb-text-secondary);">(Editado)</span>
                 
                 <!-- Botón de edición si el usuario es dueño -->

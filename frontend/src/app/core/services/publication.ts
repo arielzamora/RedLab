@@ -49,4 +49,25 @@ export class Publication {
   editComment(id: string, commentId: string, texto: string) {
     return this.http.put(`${this.apiUrl}/${id}/comments/${commentId}`, { texto });
   }
+
+  getPublicacionesPorUsuarioStats(fechaInicio?: string, fechaFin?: string) {
+    let url = `${this.apiUrl}/estadisticas/publicaciones-por-usuario?`;
+    if (fechaInicio) url += `fechaInicio=${fechaInicio}&`;
+    if (fechaFin) url += `fechaFin=${fechaFin}`;
+    return this.http.get(url);
+  }
+
+  getComentariosTotalesStats(fechaInicio?: string, fechaFin?: string) {
+    let url = `${this.apiUrl}/estadisticas/comentarios-totales?`;
+    if (fechaInicio) url += `fechaInicio=${fechaInicio}&`;
+    if (fechaFin) url += `fechaFin=${fechaFin}`;
+    return this.http.get(url);
+  }
+
+  getComentariosPorPublicacionStats(fechaInicio?: string, fechaFin?: string) {
+    let url = `${this.apiUrl}/estadisticas/comentarios-por-publicacion?`;
+    if (fechaInicio) url += `fechaInicio=${fechaInicio}&`;
+    if (fechaFin) url += `fechaFin=${fechaFin}`;
+    return this.http.get(url);
+  }
 }

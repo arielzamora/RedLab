@@ -25,12 +25,24 @@ export class UsersService {
   }
 
   async create(createUserDto: any): Promise<UserDocument> {
+    if (createUserDto.password && !createUserDto.password.startsWith('$2b$')) {
+      const salt = await bcrypt.genSalt(10);
+      createUserDto.password = await bcrypt.hash(createUserDto.password, salt);
+    }
     const newUser = new this.userModel(createUserDto);
     return newUser.save();
   }
 
+  async disableUser(id: string): Promise<UserDocument | null> {
+    return this.userModel.findByIdAndUpdate(id, { activo: false }, { new: true }).exec();
+  }
+
+  async enableUser(id: string): Promise<UserDocument | null> {
+    return this.userModel.findByIdAndUpdate(id, { activo: true }, { new: true }).exec();
+  }
+
   async update(id: string, updateUserDto: any): Promise<UserDocument | null> {
-    if (updateUserDto.password) {
+    if (updateUserDto.password && !updateUserDto.password.startsWith('$2b$')) {
       const salt = await bcrypt.genSalt(10);
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, salt);
     }

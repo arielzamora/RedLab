@@ -4,11 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Publication } from '../../core/services/publication';
 import { Auth } from '../../core/services/auth';
+import { AvatarFallbackPipe } from '../../core/pipes/avatar-fallback.pipe';
+import { TimeAgoPipe } from '../../core/pipes/time-ago.pipe';
+import { ImgFallbackDirective } from '../../core/directives/img-fallback.directive';
 
 @Component({
   selector: 'app-post-card',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AvatarFallbackPipe, TimeAgoPipe, ImgFallbackDirective],
   templateUrl: './post-card.html',
   styleUrl: './post-card.scss',
 })

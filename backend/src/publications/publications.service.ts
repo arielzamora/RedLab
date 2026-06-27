@@ -185,4 +185,108 @@ export class PublicationsService {
     
     return populated.comentarios.find(c => (c as any)._id.toString() === commentId);
   }
+
+  async getPublicacionesPorUsuarioStats(fechaInicio?: string, fechaFin?: string) {
+    const filter: any = { activo: true };
+    if (fechaInicio || fechaFin) {
+      filter.createdAt = {};
+      if (fechaInicio) filter.createdAt.$gte = new Date(fechaInicio);
+      if (fechaFin) filter.createdAt.$lte = new Date(fechaFin);
+    }
+
+    return this.publicationModel.aggregate([
+      { $match: filter },
+      { $group: { _id: '$autor', count: { $sum: 1 } } },
+      { $lookup: { from: 'users', localField: '_id', foreignField: '_id', as: 'user' } },
+      { $unwind: '$user' },
+      {
+        $project: {
+          _id: 0,
+          userId: '$_id',
+          username: '$user.username',
+          nombre: '$user.nombre',
+          apellido: '$user.apellido',
+          count: 1,
+        }
+      },
+      { $sort: { count: -1 } }
+    ]).exec();
+  }
+
+  async getComentariosTotalesStats(fechaInicio?: string, fechaFin?: string) {
+    const filter: any = { activo: true };
+    
+    const pipeline: any[] = [
+      { $match: filter },
+      { $unwind: '$comentarios' }
+    ];
+
+    if (fechaInicio || fechaFin) {
+      const dateFilter: any = {};
+      if (fechaInicio) dateFilter.$gte = new Date(fechaInicio);
+      if (fechaFin) dateFilter.$lte = new Date(fechaFin);
+      pipeline.push({
+        $match: { 'comentarios.createdAt': dateFilter }
+      });
+    }
+
+    pipeline.push(
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$comentarios.createdAt' } },
+          count: { $sum: 1 }
+        }
+      },
+      { $project: { _id: 0, fecha: '$_id', count: 1 } },
+      { $sort: { fecha: 1 } }
+    );
+
+    return this.publicationModel.aggregate(pipeline).exec();
+  }
+
+  async getComentariosPorPublicacionStats(fechaInicio?: string, fechaFin?: string) {
+    const filter: any = { activo: true };
+    
+    const pipeline: any[] = [
+      { $match: filter },
+      { $unwind: { path: '$comentarios', preserveNullAndEmptyArrays: true } }
+    ];
+
+    if (fechaInicio || fechaFin) {
+      const dateFilter: any = {};
+      if (fechaInicio) dateFilter.$gte = new Date(fechaInicio);
+      if (fechaFin) dateFilter.$lte = new Date(fechaFin);
+      
+      pipeline.push({
+        $match: {
+          $or: [
+            { 'comentarios.createdAt': dateFilter },
+            { comentarios: null }
+          ]
+        }
+      });
+    }
+
+    pipeline.push(
+      {
+        $group: {
+          _id: '$_id',
+          titulo: { $first: '$titulo' },
+          count: {
+            $sum: {
+              $cond: [
+                { $ifNull: ['$comentarios._id', false] },
+                1,
+                0
+              ]
+            }
+          }
+        }
+      },
+      { $project: { _id: 0, publicationId: '$_id', titulo: 1, count: 1 } },
+      { $sort: { count: -1 } }
+    );
+
+    return this.publicationModel.aggregate(pipeline).exec();
+  }
 }

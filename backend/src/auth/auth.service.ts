@@ -61,8 +61,12 @@ export class AuthService {
 
     // Find user by username or email
     const user = await this.usersService.findByUsername(username) || await this.usersService.findByEmail(username);
-    if (!user || !user.activo) {
+    if (!user) {
       throw new UnauthorizedException('Credenciales inválidas.');
+    }
+
+    if (!user.activo) {
+      throw new UnauthorizedException('Usuario deshabilitado. No estás autorizado a ingresar.');
     }
 
     // Compare passwords

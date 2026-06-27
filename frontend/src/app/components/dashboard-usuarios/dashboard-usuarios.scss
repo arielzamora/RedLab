@@ -1,0 +1,67 @@
+.dashboard-wrapper {
+  background-color: var(--fb-bg);
+  min-height: 100vh;
+}
+
+.layout-container {
+  margin-top: 16px;
+  grid-template-columns: 280px 1fr;
+  align-items: start;
+
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.sidebar-left {
+  position: sticky;
+  top: 76px;
+
+  .btn-sidebar {
+    transition: all 0.2s ease-in-out;
+    &:hover {
+      background-color: var(--fb-divider);
+    }
+    &.active {
+      background-color: var(--fb-blue);
+      color: white;
+    }
+  }
+}
+
+.card {
+  border: 1px solid var(--fb-divider);
+}
+
+table {
+  width: 100%;
+  border-spacing: 0;
+
+  th, td {
+    border-bottom: 1px solid var(--fb-divider);
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+input, textarea {
+  transition: border-color 0.2s ease;
+  &:focus {
+    border-color: var(--fb-blue) !important;
+  }
+}
+
+/* Modal animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

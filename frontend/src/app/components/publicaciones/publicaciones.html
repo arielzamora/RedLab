@@ -62,6 +62,18 @@
         <span style="font-weight: 600; font-size: 0.9rem; color: var(--fb-text-primary);">{{ currentUser.nombre }}</span>
       </div>
 
+      <!-- Botón de Administración Rápida en Header (Solo Admin) -->
+      <button 
+        *ngIf="currentUser.perfil === 'administrador'"
+        (click)="goToUsersDashboard()"
+        style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background-color: #ffebee; border: none; cursor: pointer; color: #c62828; transition: filter 0.2s;"
+        onmouseover="this.style.filter='brightness(0.95)'"
+        onmouseout="this.style.filter='none'"
+        title="Panel de Administración"
+      >
+        ⚙️
+      </button>
+
       <button 
         (click)="logout()" 
         style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background-color: var(--fb-divider); border: none; cursor: pointer; color: var(--fb-text-primary); transition: filter 0.2s;"
@@ -94,6 +106,8 @@
       
       <div class="sidebar-actions">
         <button class="btn-sidebar" (click)="goToProfile()">Ver mi Perfil</button>
+        <button *ngIf="currentUser.perfil === 'administrador'" class="btn-sidebar" (click)="goToUsersDashboard()" style="background-color: #ffebee; color: #c62828; font-weight: 700; border: 1px solid #ffcdd2;">👥 Panel Usuarios</button>
+        <button *ngIf="currentUser.perfil === 'administrador'" class="btn-sidebar" (click)="goToStatsDashboard()" style="background-color: #ffebee; color: #c62828; font-weight: 700; border: 1px solid #ffcdd2;">📊 Estadísticas</button>
         <button class="btn-sidebar btn-danger" (click)="logout()">Cerrar sesión</button>
       </div>
     </aside>

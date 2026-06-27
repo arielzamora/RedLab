@@ -87,4 +87,20 @@ export class Auth {
       })
     );
   }
+
+  getUsers(): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}/users`);
+  }
+
+  crearUsuarioPorAdmin(userData: any): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/users`, userData);
+  }
+
+  deshabilitarUsuario(userId: string): Observable<any> {
+    return this.http.delete<any>(`${environment.apiUrl}/users/${userId}`);
+  }
+
+  habilitarUsuario(userId: string): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/users/${userId}/enable`, {});
+  }
 }
