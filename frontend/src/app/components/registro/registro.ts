@@ -2,11 +2,13 @@ import { Component, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Auth } from '../../core/services/auth';
+import { OnlyLettersDirective } from '../../core/directives/only-letters.directive';
+import { PreventCopyPasteDirective } from '../../core/directives/prevent-copy-paste.directive';
 
 @Component({
   selector: 'app-registro',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, OnlyLettersDirective, PreventCopyPasteDirective],
   templateUrl: './registro.html',
   styleUrl: './registro.scss',
 })

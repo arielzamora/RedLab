@@ -60,14 +60,38 @@
     </aside>
 
     <!-- Main Content Area: List & Form Grid -->
-    <div style="display: grid; grid-template-columns: 1fr 380px; gap: 20px; align-items: start;">
+    <div style="display: grid; gap: 20px; align-items: start;" [style.grid-template-columns]="showCreateForm() ? '1fr 380px' : '1fr'">
       
       <!-- Panel de Listado de Usuarios -->
       <section class="card" style="background-color: var(--fb-surface); border-radius: var(--border-radius-card); padding: 20px; box-shadow: var(--shadow-card);">
         <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 1.25rem; font-weight: 700; color: var(--fb-text-primary); border-bottom: 2px solid var(--fb-divider); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-          Listado de Usuarios Registrados
-          <span style="font-size: 0.85rem; font-weight: 500; color: var(--fb-text-secondary); background-color: var(--fb-bg); padding: 4px 10px; border-radius: 12px;">Total: {{ users().length }}</span>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span>Listado de Usuarios Registrados</span>
+            <span style="font-size: 0.85rem; font-weight: 500; color: var(--fb-text-secondary); background-color: var(--fb-bg); padding: 4px 10px; border-radius: 12px;">Total: {{ filteredUsers().length }}</span>
+          </div>
+          <button 
+            (click)="toggleCreateForm()" 
+            class="btn-primary" 
+            [style.background-color]="showCreateForm() ? 'var(--fb-text-secondary)' : 'var(--fb-blue)'"
+            style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; padding: 8px 16px; border: none; border-radius: 6px; color: white; font-weight: 700; cursor: pointer; transition: background-color 0.2s;"
+          >
+            {{ showCreateForm() ? '❌ Cerrar Formulario' : '➕ Agregar Usuario' }}
+          </button>
         </h3>
+
+        <!-- Buscador de usuarios -->
+        <div style="margin-bottom: 16px; position: relative; display: flex; align-items: center;">
+          <span style="position: absolute; left: 12px; color: var(--fb-text-secondary); font-size: 1rem;">🔍</span>
+          <input 
+            type="text" 
+            [ngModel]="searchQuery()" 
+            (ngModelChange)="searchQuery.set($event)"
+            placeholder="Buscar usuarios por nombre, correo o username..." 
+            style="width: 100%; padding: 10px 12px 10px 38px; border-radius: 20px; border: 1px solid var(--fb-border); outline: none; font-size: 0.9rem; background-color: var(--fb-bg); color: var(--fb-text-primary); transition: border-color 0.2s;"
+            onfocus="this.style.borderColor='var(--fb-blue)'"
+            onblur="this.style.borderColor='var(--fb-border)'"
+          />
+        </div>
 
         <!-- Loading state -->
         <div *ngIf="isLoading()" style="padding: 40px; text-align: center; color: var(--fb-text-secondary);">
@@ -89,7 +113,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let u of users()" style="border-bottom: 1px solid var(--fb-divider); transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--fb-bg)'" onmouseout="this.style.backgroundColor='transparent'">
+              <tr *ngFor="let u of filteredUsers()" style="border-bottom: 1px solid var(--fb-divider); transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--fb-bg)'" onmouseout="this.style.backgroundColor='transparent'">
                 <td style="padding: 12px 8px; display: flex; align-items: center; gap: 10px;">
                   <img [src]="u.imgUrl | avatarFallback:u.nombre" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" alt="Avatar" />
                   <div style="display: flex; flex-direction: column;">
@@ -133,7 +157,7 @@
       </section>
 
       <!-- Panel de Registro de Nuevos Usuarios -->
-      <section class="card" style="background-color: var(--fb-surface); border-radius: var(--border-radius-card); padding: 20px; box-shadow: var(--shadow-card);">
+      <section class="card" *ngIf="showCreateForm()" style="background-color: var(--fb-surface); border-radius: var(--border-radius-card); padding: 20px; box-shadow: var(--shadow-card);">
         <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 1.25rem; font-weight: 700; color: var(--fb-text-primary); border-bottom: 2px solid var(--fb-divider); padding-bottom: 10px;">
           Alta de Nuevo Usuario
         </h3>
@@ -148,10 +172,11 @@
                 type="text" 
                 formControlName="nombre" 
                 appPreventCopyPaste
+                appOnlyLetters
                 placeholder="Juan" 
-                style="padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none;" 
+                style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none;" 
               />
-              <span *ngIf="registerForm.get('nombre')?.touched && registerForm.get('nombre')?.invalid" style="color: #c62828; font-size: 0.7rem;">Invalido.</span>
+              <span *ngIf="registerForm.get('nombre')?.touched && registerForm.get('nombre')?.invalid" style="color: #c62828; font-size: 0.7rem;">Solo letras (mín. 2).</span>
             </div>
             
             <div style="display: flex; flex-direction: column; gap: 4px;">
@@ -160,10 +185,11 @@
                 type="text" 
                 formControlName="apellido" 
                 appPreventCopyPaste
+                appOnlyLetters
                 placeholder="Pérez" 
-                style="padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none;" 
+                style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none;" 
               />
-              <span *ngIf="registerForm.get('apellido')?.touched && registerForm.get('apellido')?.invalid" style="color: #c62828; font-size: 0.7rem;">Invalido.</span>
+              <span *ngIf="registerForm.get('apellido')?.touched && registerForm.get('apellido')?.invalid" style="color: #c62828; font-size: 0.7rem;">Solo letras (mín. 2).</span>
             </div>
           </div>
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, signal } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -6,20 +6,36 @@ import { FormsModule } from '@angular/forms';
 import { Auth } from '../../core/services/auth';
 import { AvatarFallbackPipe } from '../../core/pipes/avatar-fallback.pipe';
 import { PreventCopyPasteDirective } from '../../core/directives/prevent-copy-paste.directive';
+import { OnlyLettersDirective } from '../../core/directives/only-letters.directive';
 import { TruncatePipe } from '../../core/pipes/truncate.pipe';
 
 @Component({
   selector: 'app-dashboard-usuarios',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, AvatarFallbackPipe, PreventCopyPasteDirective, TruncatePipe],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, AvatarFallbackPipe, PreventCopyPasteDirective, TruncatePipe, OnlyLettersDirective],
   templateUrl: './dashboard-usuarios.html',
   styleUrl: './dashboard-usuarios.scss',
 })
 export class DashboardUsuarios implements OnInit {
   users = signal<any[]>([]);
+  searchQuery = signal('');
+  showCreateForm = signal(false);
   isLoading = signal(false);
   isSubmitting = signal(false);
   currentUser: any = null;
+
+  filteredUsers = computed(() => {
+    const query = this.searchQuery().toLowerCase().trim();
+    if (!query) {
+      return this.users();
+    }
+    return this.users().filter(u =>
+      (u.nombre || '').toLowerCase().includes(query) ||
+      (u.apellido || '').toLowerCase().includes(query) ||
+      (u.correo || '').toLowerCase().includes(query) ||
+      (u.username || '').toLowerCase().includes(query)
+    );
+  });
 
   registerForm: FormGroup;
   selectedFile: File | null = null;
@@ -193,6 +209,11 @@ export class DashboardUsuarios implements OnInit {
         }
       });
     }
+  }
+
+  toggleCreateForm() {
+    this.showCreateForm.update(v => !v);
+    this.cdr.markForCheck();
   }
 
   goToFeed() {

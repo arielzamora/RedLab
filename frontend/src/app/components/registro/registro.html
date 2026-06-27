@@ -18,6 +18,8 @@
             <input 
               type="text" 
               formControlName="nombre" 
+              appPreventCopyPaste
+              appOnlyLetters
               placeholder="Nombre" 
               class="form-input" 
               [class.input-error]="registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched"
@@ -30,6 +32,8 @@
             <input 
               type="text" 
               formControlName="apellido" 
+              appPreventCopyPaste
+              appOnlyLetters
               placeholder="Apellido" 
               class="form-input" 
               [class.input-error]="registerForm.get('apellido')?.invalid && registerForm.get('apellido')?.touched"
