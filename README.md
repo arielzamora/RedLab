@@ -17,6 +17,22 @@ El proyecto se divide de forma limpia en dos directorios principales:
 
 ---
 
+## 🧩 Componentes Especializados (Pipes y Directivas Custom)
+
+Para potenciar la modularidad y el control de la interfaz, el frontend implementa las siguientes piezas personalizadas:
+
+*   **Pipes Custom**:
+    *   `timeAgo`: Formateador relativo de fechas para posts y comentarios (ej: "Hace 5 minutos").
+    *   `truncate`: Recortador inteligente de textos largos para biografías o descripciones.
+    *   `avatarFallback`: Generador de iniciales dinámicas y color de fondo si no se dispone de foto de perfil.
+*   **Directivas Custom**:
+    *   `appAdminOnly`: Restringe la visibilidad de elementos visuales únicamente a usuarios con rol administrativo.
+    *   `appPreventCopyPaste`: Bloquea acciones de copiar/pegar en inputs sensibles.
+    *   `appImgFallback`: Sustituye automáticamente con una imagen comodín si falla la carga de un recurso visual.
+    *   `appOnlyLetters`: Limita la entrada y limpia el texto para permitir únicamente letras y espacios en campos de nombre/apellido.
+
+---
+
 ## 🛠️ Comandos de Ejecución (Monorepo)
 
 Desde la carpeta raíz del proyecto (`red-social`), puedes gestionar y correr ambas aplicaciones de manera centralizada sin necesidad de navegar manualmente entre carpetas:

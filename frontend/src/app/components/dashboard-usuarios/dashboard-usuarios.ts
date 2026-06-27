@@ -168,6 +168,7 @@ export class DashboardUsuarios implements OnInit {
         this.selectedFile = null;
         const fileInput = document.getElementById('imagenPerfilAdmin') as HTMLInputElement;
         if (fileInput) fileInput.value = '';
+        this.showCreateForm.set(false);
         this.loadUsers();
       },
       error: (err) => {

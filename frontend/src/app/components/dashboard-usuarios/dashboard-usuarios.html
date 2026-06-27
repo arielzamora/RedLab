@@ -59,8 +59,8 @@
       </div>
     </aside>
 
-    <!-- Main Content Area: List & Form Grid -->
-    <div style="display: grid; gap: 20px; align-items: start;" [style.grid-template-columns]="showCreateForm() ? '1fr 380px' : '1fr'">
+    <!-- Main Content Area: List Area (Full Width) -->
+    <div style="width: 100%;">
       
       <!-- Panel de Listado de Usuarios -->
       <section class="card" style="background-color: var(--fb-surface); border-radius: var(--border-radius-card); padding: 20px; box-shadow: var(--shadow-card);">
@@ -72,10 +72,9 @@
           <button 
             (click)="toggleCreateForm()" 
             class="btn-primary" 
-            [style.background-color]="showCreateForm() ? 'var(--fb-text-secondary)' : 'var(--fb-blue)'"
             style="font-size: 0.85rem; display: flex; align-items: center; gap: 6px; padding: 8px 16px; border: none; border-radius: 6px; color: white; font-weight: 700; cursor: pointer; transition: background-color 0.2s;"
           >
-            {{ showCreateForm() ? '❌ Cerrar Formulario' : '➕ Agregar Usuario' }}
+            ➕ Agregar Usuario
           </button>
         </h3>
 
@@ -156,154 +155,172 @@
         </div>
       </section>
 
-      <!-- Panel de Registro de Nuevos Usuarios -->
-      <section class="card" *ngIf="showCreateForm()" style="background-color: var(--fb-surface); border-radius: var(--border-radius-card); padding: 20px; box-shadow: var(--shadow-card);">
-        <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 1.25rem; font-weight: 700; color: var(--fb-text-primary); border-bottom: 2px solid var(--fb-divider); padding-bottom: 10px;">
-          Alta de Nuevo Usuario
-        </h3>
-
-        <form [formGroup]="registerForm" (ngSubmit)="crearUsuario()" style="display: flex; flex-direction: column; gap: 14px;">
+      <!-- Modal de Registro de Usuario (Popup Centrado) -->
+      <div class="custom-modal-backdrop" *ngIf="showCreateForm()" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 999; animation: fadeIn 0.2s ease-out;">
+        <div class="custom-modal-content" style="background-color: var(--fb-surface); border-radius: 8px; width: 95%; max-width: 500px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); overflow: hidden; animation: scaleUp 0.2s ease-out; display: flex; flex-direction: column; max-height: 90vh;">
           
-          <!-- Nombre y Apellido -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div style="display: flex; flex-direction: column; gap: 4px;">
-              <label style="font-size: 0.8rem; font-weight: 600; color: var(--fb-text-secondary);">Nombre</label>
-              <input 
-                type="text" 
-                formControlName="nombre" 
-                appPreventCopyPaste
-                appOnlyLetters
-                placeholder="Juan" 
-                style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none;" 
-              />
-              <span *ngIf="registerForm.get('nombre')?.touched && registerForm.get('nombre')?.invalid" style="color: #c62828; font-size: 0.7rem;">Solo letras (mín. 2).</span>
-            </div>
-            
-            <div style="display: flex; flex-direction: column; gap: 4px;">
-              <label style="font-size: 0.8rem; font-weight: 600; color: var(--fb-text-secondary);">Apellido</label>
-              <input 
-                type="text" 
-                formControlName="apellido" 
-                appPreventCopyPaste
-                appOnlyLetters
-                placeholder="Pérez" 
-                style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none;" 
-              />
-              <span *ngIf="registerForm.get('apellido')?.touched && registerForm.get('apellido')?.invalid" style="color: #c62828; font-size: 0.7rem;">Solo letras (mín. 2).</span>
-            </div>
+          <!-- Encabezado del Modal -->
+          <div style="background-color: var(--fb-blue); color: white; padding: 14px 16px; font-weight: 700; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;">
+            <span>Alta de Nuevo Usuario</span>
+            <span (click)="toggleCreateForm()" style="cursor: pointer; font-size: 1.4rem; font-weight: 300;">&times;</span>
           </div>
+          
+          <!-- Cuerpo del Modal (Scrollable) -->
+          <div style="padding: 20px; overflow-y: auto; flex-grow: 1;">
+            <form [formGroup]="registerForm" (ngSubmit)="crearUsuario()" style="display: flex; flex-direction: column; gap: 14px;">
+              
+              <!-- Nombre y Apellido -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <label style="font-size: 0.8rem; font-weight: 600; color: var(--fb-text-secondary);">Nombre</label>
+                  <input 
+                    type="text" 
+                    formControlName="nombre" 
+                    appPreventCopyPaste
+                    appOnlyLetters
+                    placeholder="Juan" 
+                    style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none;" 
+                  />
+                  <span *ngIf="registerForm.get('nombre')?.touched && registerForm.get('nombre')?.invalid" style="color: #c62828; font-size: 0.7rem;">Solo letras (mín. 2).</span>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <label style="font-size: 0.8rem; font-weight: 600; color: var(--fb-text-secondary);">Apellido</label>
+                  <input 
+                    type="text" 
+                    formControlName="apellido" 
+                    appPreventCopyPaste
+                    appOnlyLetters
+                    placeholder="Pérez" 
+                    style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none;" 
+                  />
+                  <span *ngIf="registerForm.get('apellido')?.touched && registerForm.get('apellido')?.invalid" style="color: #c62828; font-size: 0.7rem;">Solo letras (mín. 2).</span>
+                </div>
+              </div>
 
-          <!-- Correo -->
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <label style="font-size: 0.8rem; font-weight: 600; color: var(--fb-text-secondary);">Correo Electrónico</label>
-            <input 
-              type="email" 
-              formControlName="correo" 
-              appPreventCopyPaste
-              placeholder="correo@ejemplo.com" 
-              style="padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none;" 
-            />
-            <span *ngIf="registerForm.get('correo')?.touched && registerForm.get('correo')?.invalid" style="color: #c62828; font-size: 0.7rem;">Invalido.</span>
-          </div>
-
-          <!-- Nombre de Usuario -->
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <label style="font-size: 0.8rem; font-weight: 600; color: var(--fb-text-secondary);">Nombre de Usuario</label>
-            <input 
-              type="text" 
-              formControlName="username" 
-              appPreventCopyPaste
-              placeholder="juanperez" 
-              style="padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none;" 
-            />
-            <span *ngIf="registerForm.get('username')?.touched && registerForm.get('username')?.invalid" style="color: #c62828; font-size: 0.7rem;">Mín. 3 caracteres (a-Z, 0-9, _, -).</span>
-          </div>
-
-          <!-- Contraseña -->
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <label style="font-size: 0.8rem; font-weight: 600; color: var(--fb-text-secondary);">Contraseña</label>
-            <input 
-              type="password" 
-              formControlName="password" 
-              appPreventCopyPaste
-              placeholder="••••••••" 
-              style="padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none;" 
-            />
-            <span *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid" style="color: #c62828; font-size: 0.7rem;">Mín. 8 caracteres, 1 mayúscula, 1 número.</span>
-          </div>
-
-          <!-- Repetir Contraseña -->
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <label style="font-size: 0.8rem; font-weight: 600; color: var(--fb-text-secondary);">Confirmar Contraseña</label>
-            <input 
-              type="password" 
-              formControlName="repetirPassword" 
-              appPreventCopyPaste
-              placeholder="••••••••" 
-              style="padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none;" 
-            />
-          </div>
-
-          <!-- Fecha de Nacimiento -->
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <label style="font-size: 0.8rem; font-weight: 600; color: var(--fb-text-secondary);">Fecha de Nacimiento</label>
-            <input 
-              type="date" 
-              formControlName="fechaNacimiento" 
-              style="padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none; width: 100%;" 
-            />
-          </div>
-
-          <!-- Descripción -->
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <label style="font-size: 0.8rem; font-weight: 600; color: var(--fb-text-secondary);">Descripción / Bio (Opcional)</label>
-            <textarea 
-              formControlName="descripcion" 
-              rows="2"
-              placeholder="Breve presentación..." 
-              style="padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none; resize: vertical; font-family: inherit;"
-            ></textarea>
-          </div>
-
-          <!-- Rol (Radio Buttons) -->
-          <div style="display: flex; flex-direction: column; gap: 6px; margin: 4px 0;">
-            <label style="font-size: 0.85rem; font-weight: 600; color: var(--fb-text-secondary);">Rol del Usuario</label>
-            <div style="display: flex; gap: 20px; align-items: center; margin-top: 4px;">
-              <label style="display: flex; align-items: center; gap: 6px; font-size: 0.9rem; cursor: pointer; color: var(--fb-text-primary);">
+              <!-- Correo -->
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.8rem; font-weight: 600; color: var(--fb-text-secondary);">Correo Electrónico</label>
                 <input 
-                  type="radio" 
-                  value="usuario" 
-                  formControlName="perfil" 
-                  style="cursor: pointer; width: 16px; height: 16px;" 
+                  type="email" 
+                  formControlName="correo" 
+                  appPreventCopyPaste
+                  placeholder="correo@ejemplo.com" 
+                  style="padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none;" 
                 />
-                Usuario Regular
-              </label>
-              <label style="display: flex; align-items: center; gap: 6px; font-size: 0.9rem; cursor: pointer; color: var(--fb-text-primary);">
+                <span *ngIf="registerForm.get('correo')?.touched && registerForm.get('correo')?.invalid" style="color: #c62828; font-size: 0.7rem;">Invalido.</span>
+              </div>
+
+              <!-- Nombre de Usuario -->
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.8rem; font-weight: 600; color: var(--fb-text-secondary);">Nombre de Usuario</label>
                 <input 
-                  type="radio" 
-                  value="administrador" 
-                  formControlName="perfil" 
-                  style="cursor: pointer; width: 16px; height: 16px;" 
+                  type="text" 
+                  formControlName="username" 
+                  appPreventCopyPaste
+                  placeholder="juanperez" 
+                  style="padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none;" 
                 />
-                Administrador
-              </label>
-            </div>
+                <span *ngIf="registerForm.get('username')?.touched && registerForm.get('username')?.invalid" style="color: #c62828; font-size: 0.7rem;">Mín. 3 caracteres (a-Z, 0-9, _, -).</span>
+              </div>
+
+              <!-- Contraseña -->
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.8rem; font-weight: 600; color: var(--fb-text-secondary);">Contraseña</label>
+                <input 
+                  type="password" 
+                  formControlName="password" 
+                  appPreventCopyPaste
+                  placeholder="••••••••" 
+                  style="padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none;" 
+                />
+                <span *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid" style="color: #c62828; font-size: 0.7rem;">Mín. 8 caracteres, 1 mayúscula, 1 número.</span>
+              </div>
+
+              <!-- Repetir Contraseña -->
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.8rem; font-weight: 600; color: var(--fb-text-secondary);">Confirmar Contraseña</label>
+                <input 
+                  type="password" 
+                  formControlName="repetirPassword" 
+                  appPreventCopyPaste
+                  placeholder="••••••••" 
+                  style="padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none;" 
+                />
+              </div>
+
+              <!-- Fecha de Nacimiento -->
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.8rem; font-weight: 600; color: var(--fb-text-secondary);">Fecha de Nacimiento</label>
+                <input 
+                  type="date" 
+                  formControlName="fechaNacimiento" 
+                  style="padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none; width: 100%;" 
+                />
+              </div>
+
+              <!-- Descripción -->
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.8rem; font-weight: 600; color: var(--fb-text-secondary);">Descripción / Bio (Opcional)</label>
+                <textarea 
+                  formControlName="descripcion" 
+                  rows="2"
+                  placeholder="Breve presentación..." 
+                  style="padding: 8px; border-radius: 6px; border: 1px solid var(--fb-border); font-size: 0.85rem; outline: none; resize: vertical; font-family: inherit;"
+                ></textarea>
+              </div>
+
+              <!-- Rol (Radio Buttons) -->
+              <div style="display: flex; flex-direction: column; gap: 6px; margin: 4px 0;">
+                <label style="font-size: 0.85rem; font-weight: 600; color: var(--fb-text-secondary);">Rol del Usuario</label>
+                <div style="display: flex; gap: 20px; align-items: center; margin-top: 4px;">
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 0.9rem; cursor: pointer; color: var(--fb-text-primary);">
+                    <input 
+                      type="radio" 
+                      value="usuario" 
+                      formControlName="perfil" 
+                      style="cursor: pointer; width: 16px; height: 16px;" 
+                    />
+                    Usuario Regular
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 0.9rem; cursor: pointer; color: var(--fb-text-primary);">
+                    <input 
+                      type="radio" 
+                      value="administrador" 
+                      formControlName="perfil" 
+                      style="cursor: pointer; width: 16px; height: 16px;" 
+                    />
+                    Administrador
+                  </label>
+                </div>
+              </div>
+
+              <!-- Botones de Acción -->
+              <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; border-top: 1px solid var(--fb-divider); padding-top: 14px;">
+                <button 
+                  type="button" 
+                  (click)="toggleCreateForm()" 
+                  style="background-color: var(--fb-divider); color: var(--fb-text-primary); border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit" 
+                  [disabled]="isSubmitting()"
+                  style="background-color: var(--fb-blue); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background-color 0.2s;"
+                  onmouseover="this.style.backgroundColor='#166fe5'"
+                  onmouseout="this.style.backgroundColor='var(--fb-blue)'"
+                >
+                  <span *ngIf="isSubmitting()" class="spinner" style="width: 12px; height: 12px; border-width: 1.5px; border-top-color: #fff; border-right-color: transparent;"></span>
+                  Registrar Usuario
+                </button>
+              </div>
+
+            </form>
           </div>
 
-          <!-- Botón de Envío -->
-          <button 
-            type="submit" 
-            [disabled]="isSubmitting()"
-            style="background-color: var(--fb-blue); color: white; border: none; padding: 10px 16px; border-radius: 6px; font-weight: 700; font-size: 0.9rem; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background-color 0.2s;"
-            onmouseover="this.style.backgroundColor='#166fe5'"
-            onmouseout="this.style.backgroundColor='var(--fb-blue)'"
-          >
-            <span *ngIf="isSubmitting()" class="spinner" style="width: 14px; height: 14px; border-width: 1.5px; border-top-color: #fff; border-right-color: transparent;"></span>
-            Registrar Usuario
-          </button>
-
-        </form>
-      </section>
+        </div>
+      </div>
 
     </div>
   </div>
