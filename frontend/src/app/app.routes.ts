@@ -8,13 +8,13 @@ import { DashboardUsuarios } from './components/dashboard-usuarios/dashboard-usu
 import { DashboardEstadisticas } from './components/dashboard-estadisticas/dashboard-estadisticas';
 
 export const routes: Routes = [
-  { path: 'login', component: Login },
-  { path: 'registro', component: Registro },
-  { path: 'publicaciones', component: Publicaciones },
-  { path: 'publicaciones/:id', component: PublicacionDetalle },
-  { path: 'mi-perfil', component: MiPerfil },
-  { path: 'dashboard/usuarios', component: DashboardUsuarios },
-  { path: 'dashboard/estadisticas', component: DashboardEstadisticas },
+  { path: 'login', component: Login, data: { animation: 1 } },
+  { path: 'registro', component: Registro, data: { animation: 2 } },
+  { path: 'publicaciones', component: Publicaciones, data: { animation: 3 } },
+  { path: 'publicaciones/:id', component: PublicacionDetalle, data: { animation: 4 } },
+  { path: 'mi-perfil', component: MiPerfil, data: { animation: 5 } },
+  { path: 'dashboard/usuarios', component: DashboardUsuarios, data: { animation: 6 } },
+  { path: 'dashboard/estadisticas', component: DashboardEstadisticas, data: { animation: 7 } },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' }
 ];

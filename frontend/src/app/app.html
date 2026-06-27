@@ -3,7 +3,9 @@
   <p class="app-loading-text">Cargando utnLab...</p>
 </div>
 
-<router-outlet *ngIf="!isLoading()" />
+<div *ngIf="!isLoading()" [@routeAnimations]="getRouteAnimationData()" style="position: relative; overflow-x: hidden; min-height: 100vh; width: 100%;">
+  <router-outlet />
+</div>
 
 <!-- Global Session Extension Modal -->
 <div class="modal-backdrop" *ngIf="showSessionModal()">

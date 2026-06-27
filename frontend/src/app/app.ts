@@ -1,15 +1,69 @@
 import { Component, OnInit, OnDestroy, signal } from '@angular/core';
-import { RouterOutlet, Router } from '@angular/router';
+import { RouterOutlet, Router, ChildrenOutletContexts } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Auth } from './core/services/auth';
 import { Subscription } from 'rxjs';
+import { trigger, transition, style, query, animate, group } from '@angular/animations';
+
+export const slideInAnimation =
+  trigger('routeAnimations', [
+    // Avanzar (:increment) -> la nueva página entra desde la derecha (100%) y la vieja sale hacia la izquierda (-100%)
+    transition(':increment', [
+      style({ position: 'relative' }),
+      query(':enter, :leave', [
+        style({
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          zIndex: 2
+        })
+      ], { optional: true }),
+      query(':enter', [
+        style({ left: '100%', opacity: 0 })
+      ], { optional: true }),
+      group([
+        query(':leave', [
+          animate('450ms ease-out', style({ left: '-100%', opacity: 0 }))
+        ], { optional: true }),
+        query(':enter', [
+          animate('450ms ease-out', style({ left: '0%', opacity: 1 }))
+        ], { optional: true })
+      ])
+    ]),
+    // Retroceder (:decrement) -> la nueva página entra desde la izquierda (-100%) y la vieja sale hacia la derecha (100%)
+    transition(':decrement', [
+      style({ position: 'relative' }),
+      query(':enter, :leave', [
+        style({
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          zIndex: 2
+        })
+      ], { optional: true }),
+      query(':enter', [
+        style({ left: '-100%', opacity: 0 })
+      ], { optional: true }),
+      group([
+        query(':leave', [
+          animate('450ms ease-out', style({ left: '100%', opacity: 0 }))
+        ], { optional: true }),
+        query(':enter', [
+          animate('450ms ease-out', style({ left: '0%', opacity: 1 }))
+        ], { optional: true })
+      ])
+    ])
+  ]);
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, CommonModule],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
+  animations: [slideInAnimation]
 })
 export class App implements OnInit, OnDestroy {
   protected readonly title = signal('frontend');
@@ -22,8 +76,13 @@ export class App implements OnInit, OnDestroy {
 
   constructor(
     private readonly auth: Auth,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly contexts: ChildrenOutletContexts
   ) {}
+
+  getRouteAnimationData() {
+    return this.contexts.getContext('primary')?.route?.snapshot?.data?.['animation'];
+  }
 
   ngOnInit() {
     // Check if there is a token to authorize
